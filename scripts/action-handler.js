@@ -745,7 +745,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         inventoryMap.get('consumables').set(key, value)
                     }
                     if (isEquippedItem) {
-                        if (type === 'backpack') {
+                        if (type === 'container') {
                             if (!inventoryMap.has('containers')) inventoryMap.set('containers', new Map())
                             inventoryMap.get('containers').set(key, value)
                         }
@@ -1277,7 +1277,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} spell
          */
         #getSpellInfo (spell) {
-            const components = spell.system.components
+            const components = spell.system.properties
 
             const componentsArray = []
             const info1 = {}
@@ -1481,8 +1481,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const modifiers = entity?.modifiers ?? null
             const properties = [
                 ...entity.system?.chatProperties ?? [],
-                ...entity.system?.equippableItemChatProperties ?? [],
-                ...entity.system?.activatedEffectChatProperties ?? []
+                ...entity.system?.equippableItemCardProperties ?? [],
+                ...entity.system?.activatedEffectCardProperties ?? []
             ].filter(p => p)
             const rarity = entity?.rarity ?? null
             const traits = (entity?.type === 'weapon') ? this.#getWeaponProperties(entity?.system?.properties) : null

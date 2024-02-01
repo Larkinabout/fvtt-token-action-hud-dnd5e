@@ -19,7 +19,7 @@
   "version": "This is auto replaced",
   "compatibility": {
     "minimum": "10",
-    "verified": "11.313"
+    "verified": "11.315"
   },
   "esmodules": [
     "./scripts/token-action-hud-dnd5e.min.js"
@@ -89,8 +89,9 @@
         "type": "system",
         "compatibility": [
           {
-            "minimum": "2.1.0",
-            "verified": "2.3.1"
+            "minimum": "3.0.0",
+            "maximum": "3",
+            "verified": "3.0.0"
           }
         ]
       }
@@ -103,7 +104,7 @@
           {
             "minimum": "1.5.0",
             "maximum": "1.5",
-            "verified": "1.5.0"
+            "verified": "1.5.3"
           }
         ]
       }

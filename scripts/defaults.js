@@ -71,15 +71,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: coreModule.api.Utils.i18n('DND5E.Effects'),
                 groups: [
                     { ...groups.temporaryEffects, nestId: 'effects_temporary-effects' },
-                    { ...groups.passiveEffects, nestId: 'effects_passive-effects' }
-                ]
-            },
-            {
-                nestId: 'conditions',
-                id: 'conditions',
-                name: coreModule.api.Utils.i18n('tokenActionHud.dnd5e.conditions'),
-                groups: [
-                    { ...groups.conditions, nestId: 'conditions_conditions' }
+                    { ...groups.passiveEffects, nestId: 'effects_passive-effects' },
+                    { ...groups.conditions, nestId: 'effects_conditions' }
                 ]
             },
             {

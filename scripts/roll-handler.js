@@ -9,7 +9,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      * @param {string} encodedValue
      */
         async handleActionClick (event, encodedValue) {
-            const [actionType, actionId ] = encodedValue.split('|')
+            const [actionType, actionId] = encodedValue.split('|')
 
             if (!this.actor) {
                 for (const token of coreModule.api.Utils.getControlledTokens()) {
@@ -58,7 +58,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'item':
             case 'spell':
             case 'weapon':
-                if (this.isRenderItem()) this.doRenderItem(actor, actionId)
+                if (this.isRenderItem()) this.renderItem(actor, actionId)
                 else this.#useItem(event, actor, actionId)
                 break
             case 'magicItem':
