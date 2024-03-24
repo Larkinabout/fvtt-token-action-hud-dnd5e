@@ -413,7 +413,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #toggleEffect (event, actor, actionId) {
             const effects = 'find' in actor.effects.entries ? actor.effects.entries : actor.effects
-            const effect = effects.find(effect => effect.id === actionId)
+            let effect = effects.find(effect => effect.id === actionId)
+
+            // if the effect isn't directly on the actor, search all applicable effects for it
+            if (!effect) {
+                for (const e of actor.allApplicableEffects()) {
+                    if (e.id === actionId) {
+                        effect = e
+                    }
+                }
+            }
 
             if (!effect) return
 
