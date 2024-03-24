@@ -300,7 +300,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 await this.addGroup(groupDataClone, parentgroupData)
 
                 // Add spell slot info to group
-                this.addGroupInfo(groupData)
+                if (actionType === 'spell') {
+                    this.addGroupInfo(groupDataClone)
+                }
 
                 // Build actions
                 await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType)
