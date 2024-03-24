@@ -62,7 +62,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 else this.#useItem(event, actor, actionId)
                 break
             case 'magicItem':
-                this.#rollMagicItem(actor, actionId)
+                await this.#rollMagicItem(actor, actionId)
                 break
             case 'skill':
                 this.#rollSkill(event, actor, actionId)
@@ -233,13 +233,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #rollMagicItem (actor, actionId) {
+        async #rollMagicItem (actor, actionId) {
             const actionParts = actionId.split('>')
 
             const itemId = actionParts[0]
             const magicEffectId = actionParts[1]
 
-            const magicItemActor = MagicItems.actor(actor.id)
+            const magicItemActor = await MagicItems.actor(actor.id)
 
             // magicitems module 3.0.0 does not support Item5e#use
             magicItemActor.roll(itemId, magicEffectId)

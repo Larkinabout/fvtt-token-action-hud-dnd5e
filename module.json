@@ -102,9 +102,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.5.0",
+            "minimum": "1.5.4",
             "maximum": "1.5",
-            "verified": "1.5.3"
+            "verified": "1.5.4"
           }
         ]
       }
