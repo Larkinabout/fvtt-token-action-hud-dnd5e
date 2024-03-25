@@ -1,0 +1,100 @@
+{
+  "tokenActionHud": {
+    "dnd5e": {
+      "1stLevelSpells": "Magias de 1º Nível",
+      "2ndLevelSpells": "Magias de 2º Nível",
+      "3rdLevelSpells": "Magias de 3º Nível",
+      "4thLevelSpells": "Magias de 4º Nível",
+      "5thLevelSpells": "Magias de 5º Nível",
+      "6thLevelSpells": "Magias de 6º Nível",
+      "7thLevelSpells": "Magias de 7º Nível",
+      "8thLevelSpells": "Magias de 8º Nível",
+      "9thLevelSpells": "Magias de 9º Nível",
+      "abilities": "Habilidades",
+      "activeFeatures": "Características Ativas",
+      "artifact": "Artefato",
+      "artificerInfusions": "Infusões de Artíficie",
+      "atWillSpells": "Magias À Vontade",
+      "backgroundFeatures": "Características de Antecedente",
+      "bonusActions": "Ações Bônus",
+      "cantrips": "Truques",
+      "channelDivinity": "Canalizar Divindade",
+      "check": "Teste",
+      "checks": "Testes",
+      "classFeatures": "Características de Classe",
+      "common": "Comum",
+      "condition": "Condição",
+      "conditions": "Condições",
+      "counter": "Contador",
+      "counters": "Contadores",
+      "crewActions": "Ações de Tripulação",
+      "defensiveTactics": "Táticas Defensivas",
+      "eldritchInvocations": "Invocações Místicas",
+      "elementalDisciplines": "Disciplinas Elementais",
+      "feats": "Talentos",
+      "fightingStyles": "Estilos de Luta",
+      "huntersPrey": "Presa do Caçador",
+      "innateSpells": "Magias Inatas",
+      "item": "Item",
+      "kiAbilities": "Habilidades de Ki",
+      "lair": "Covil",
+      "lairActions": "Ações de Covil",
+      "legendary": "Lendário",
+      "legendaryActions": "Ações Lendárias",
+      "magicItems": "Itens Mágicos",
+      "maneuvers": "Manobras",
+      "metamagicOptions": "Opções de Metamagia",
+      "monsterFeatures": "Características de Monstros",
+      "multiattacks": "Ataques Múltiplos",
+      "otherActions": "Outras Ações",
+      "pactBoons": "Dádiva do Pacto",
+      "pactSpells": "Magias de Pacto",
+      "passiveFeatures": "Características Passivas",
+      "psionicPowers": "Poderes Psiônicos",
+      "raceFeatures": "Características de Raça",
+      "rare": "Raro",
+      "rests": "Descansos",
+      "rollInitiative": "Rolar Iniciativa",
+      "runes": "Runas",
+      "skill": "Perícia",
+      "skills": "Perícias",
+      "superiorHuntersDefense": "Defesa de Caçador Superior",
+      "uncommon": "Incomum",
+      "veryRare": "Raríssimo",
+      "settings": {
+        "abbreviateSkills": {
+          "hint": "Exibe nomes de perícias e atributos abreviados em três caracteres.",
+          "name": "Abreviar Nomes de Perícias e Atributos"
+        },
+        "displaySpellInfo": {
+          "hint": "Exibe informação de componentes de magia, concentração e ritual próximo ao nome da magia.",
+          "name": "Exibir Informação de Magia"
+        },
+        "showItemsWithoutActivationCosts": {
+          "hint": "Mostra itens sem custo de ativação.",
+          "name": "Mostrar Itens sem Custo de Ativação"
+        },
+        "showSlowActions": {
+          "hint": "Mostra ações que levam mais do que uma rodada.",
+          "name": "Mostrar Ações Lentas"
+        },
+        "showUnchargedItems": {
+          "hint": "Mostra itens sem cargas disponíveis.",
+          "name": "Mostrar Itens sem Carga"
+        },
+        "showUnequippedItems": {
+          "hint": "Mostra itens desequipados.",
+          "name": "Mostrar Itens Desequipados"
+        },
+        "showUnequippedItemsNpcs": {
+          "hint": "Mostra itens desequipados para PnJs.",
+          "name": "Mostrar Itens Desequipados para PnJs"
+        },
+        "showUnpreparedSpells": {
+          "hint": "Mostra magias despreparadas.",
+          "name": "Mostrar Magias Despreparadas"
+        }
+      }
+    }
+  }
+}
