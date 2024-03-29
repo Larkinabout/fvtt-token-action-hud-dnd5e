@@ -415,8 +415,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const effects = 'find' in actor.effects.entries ? actor.effects.entries : actor.effects
             let effect = effects.find(effect => effect.id === actionId)
 
+            // only allow deletion if effect is directly on this actor
+            let internalEffect = true
+
             // if the effect isn't directly on the actor, search all applicable effects for it
             if (!effect) {
+                internalEffect = false
                 for (const e of actor.allApplicableEffects()) {
                     if (e.id === actionId) {
                         effect = e
@@ -428,7 +432,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const isRightClick = this.isRightClick(event)
 
-            if (isRightClick) {
+            if (isRightClick && internalEffect) {
                 await effect.delete()
             } else {
                 await effect.update({ disabled: !effect.disabled })
