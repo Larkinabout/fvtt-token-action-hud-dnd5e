@@ -93,9 +93,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const attunement = magicItem.item.system.attunment
             const attunementRequired = CONFIG.DND5E.attunementTypes?.REQUIRED ?? 1
 
-            if (attunement === attunementRequired) return false
-
-            return true
+            return attunement !== attunementRequired;
         }
     }
 })

@@ -1,6 +1,14 @@
 // System Module Imports
-import { ACTIVATION_TYPE_ICON, ACTION_TYPE, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
-import { Utils } from './utils.js'
+import {
+    ACTION_TYPE,
+    ACTIVATION_TYPE_ICON,
+    CONDITION,
+    PREPARED_ICON,
+    PROFICIENCY_LEVEL_ICON,
+    RARITY,
+    WEAPON_PROPERTY
+} from './constants.js'
+import {Utils} from './utils.js'
 
 export let ActionHandler = null
 
@@ -161,7 +169,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.#buildAbilities('check', 'checks')
             this.#buildAbilities('save', 'saves')
             this.#buildCombat()
-            this.#buildCounters()
+            await this.#buildCountersAsync()
             this.#buildExhaustion()
             this.#buildRests()
             this.#buildSkills()
@@ -256,10 +264,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} groupData  The group data
          * @param {string} actionType The action type
          */
-        async #buildActivations (items, groupData, actionType = 'item') {
-        // Create map of items according to activation type
-            const activationItems = new Map()
-
+        async #buildActivations(items, groupData, actionType = 'item') {
             // Create activation type mappings
             const activationTypeMappings = {
                 action: 'actions',
@@ -271,43 +276,48 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 reactiondamage: 'reactions',
                 reactionmanual: 'reactions',
                 other: 'other-actions'
-            }
+            };
 
-            // Loop through items
+            // Initialize activation items map
+            const activationItems = new Map();
+
+            // Populate activation items map
             for (const [key, value] of items) {
-                const activationType = value.system?.activation?.type
-                const activationTypeOther = (Object.keys(activationTypeMappings).includes(activationType)) ? activationType : 'other'
-                const groupId = activationTypeMappings[activationTypeOther]
-                if (!activationItems.has(groupId)) activationItems.set(groupId, new Map())
-                activationItems.get(groupId).set(key, value)
+                const activationType = value.system?.activation?.type || 'other';
+                const groupId = activationTypeMappings[activationType] || 'other-actions';
+                if (!activationItems.has(groupId)) activationItems.set(groupId, new Map());
+                activationItems.get(groupId).set(key, value);
             }
 
-            // Loop through action group ids
+            // Iterate through activation group ids
             for (const activationGroupId of this.activationgroupIds) {
-                // Skip if no items exist
-                if (!activationItems.has(activationGroupId)) continue
+                // Skip if no items exist for the current activation group id
+                if (!activationItems.has(activationGroupId)) continue;
 
-                // Clone and add to group data
-                const groupDataClone = { ...groupData, id: `${activationGroupId}+${groupData.id}`, type: 'system-derived' }
+                // Clone group data and adjust id and type
+                const groupDataClone = { ...groupData, id: `${activationGroupId}+${groupData.id}`, type: 'system-derived' };
 
-                // Set Equipped and Unequipped groups to not selected by default
-                if (['equipped', 'unequipped'].includes(groupData.id)) { groupDataClone.defaultSelected = false }
+                // Set defaultSelected to false for Equipped and Unequipped groups
+                if (['equipped', 'unequipped'].includes(groupData.id)) {
+                    groupDataClone.defaultSelected = false;
+                }
 
                 // Create parent group data
-                const parentgroupData = { id: activationGroupId, type: 'system' }
+                const parentgroupData = { id: activationGroupId, type: 'system' };
 
                 // Add group to HUD
-                await this.addGroup(groupDataClone, parentgroupData)
+                await this.addGroup(groupDataClone, parentgroupData);
 
-                // Add spell slot info to group
+                // Add spell slot info to group if actionType is 'spell'
                 if (actionType === 'spell') {
-                    this.addGroupInfo(groupDataClone)
+                    this.addGroupInfo(groupDataClone);
                 }
 
                 // Build actions
-                await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType)
+                await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType);
             }
         }
+
 
         /**
          * Build combat
@@ -401,7 +411,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const cssClass = `toggle${active}`
                 const img = coreModule.api.Utils.getImage(condition)
                 const tooltipData = await this.#getConditionTooltipData(id, name)
-                const tooltip = await this.#getTooltip(tooltipData)
+                const tooltip = this.#getTooltip(tooltipData)
                 return {
                     id,
                     name,
@@ -424,7 +434,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build counters
          * @private
          */
-        async #buildCounters () {
+        async #buildCountersAsync () {
             if (this.actorType !== 'character') return
 
             const actionType = 'counter'
@@ -1180,7 +1190,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const info2 = info?.info2
             const info3 = info?.info3
             const tooltipData = await this.#getTooltipData(entity)
-            const tooltip = await this.#getTooltip(tooltipData)
+            const tooltip = this.#getTooltip(tooltipData)
             return {
                 id,
                 name,
@@ -1222,8 +1232,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const excludedTypes = ['consumable', 'spell', 'feat']
             if (this.showUnequippedItems && !excludedTypes.includes(type)) return true
             const equipped = item.system.equipped
-            if (equipped && type !== 'consumable') return true
-            return false
+            return !!(equipped && type !== 'consumable');
         }
 
         /**
@@ -1234,9 +1243,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #isUsableItem (item) {
             if (this.showUnchargedItems) return true
-            const uses = item.system.uses
-            if (!uses) return false
-            return true
+            return item.system.uses;
         }
 
         /**
@@ -1375,7 +1382,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Get consume
          * @private
          * @param {object} item
-         * @param {object} actor
          * @returns {string}
          */
         #getConsumeData (item) {
@@ -1388,7 +1394,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Return resources
             if (consumeType === 'attribute') {
                 if (!consumeId) return ''
-                const parentId = consumeId.substr(0, consumeId.lastIndexOf('.'))
+                const parentId = consumeId.substring(0, consumeId.lastIndexOf('.'));
                 const target = this.actor.system[parentId]
 
                 return (target) ? `${target.value ?? '0'}${(target.max) ? `/${target.max}` : ''}` : ''
@@ -1461,8 +1467,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Get icon for a prepared spell
          * @private
-         * @param {boolean} prepararation
          * @returns
+         * @param spell
          */
         #getPreparedIcon (spell) {
             const level = spell.system.level
