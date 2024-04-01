@@ -1,14 +1,6 @@
 // System Module Imports
-import {
-    ACTION_TYPE,
-    ACTIVATION_TYPE_ICON,
-    CONDITION,
-    PREPARED_ICON,
-    PROFICIENCY_LEVEL_ICON,
-    RARITY,
-    WEAPON_PROPERTY
-} from './constants.js'
-import {Utils} from './utils.js'
+import { ACTIVATION_TYPE_ICON, ACTION_TYPE, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
+import { Utils } from './utils.js'
 
 export let ActionHandler = null
 
@@ -169,7 +161,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.#buildAbilities('check', 'checks')
             this.#buildAbilities('save', 'saves')
             this.#buildCombat()
-            await this.#buildCountersAsync()
+            this.#buildCounters()
             this.#buildExhaustion()
             this.#buildRests()
             this.#buildSkills()
@@ -276,48 +268,47 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 reactiondamage: 'reactions',
                 reactionmanual: 'reactions',
                 other: 'other-actions'
-            };
-
+            }
+            
             // Initialize activation items map
-            const activationItems = new Map();
+            const activationItems = new Map()
 
             // Populate activation items map
             for (const [key, value] of items) {
-                const activationType = value.system?.activation?.type || 'other';
-                const groupId = activationTypeMappings[activationType] || 'other-actions';
-                if (!activationItems.has(groupId)) activationItems.set(groupId, new Map());
-                activationItems.get(groupId).set(key, value);
+                const activationType = value.system?.activation?.type || 'other'
+                const groupId = activationTypeMappings[activationType] || 'other-actions'
+                if (!activationItems.has(groupId)) activationItems.set(groupId, new Map())
+                activationItems.get(groupId).set(key, value)
             }
 
             // Iterate through activation group ids
             for (const activationGroupId of this.activationgroupIds) {
                 // Skip if no items exist for the current activation group id
-                if (!activationItems.has(activationGroupId)) continue;
+                if (!activationItems.has(activationGroupId)) continue
 
                 // Clone group data and adjust id and type
-                const groupDataClone = { ...groupData, id: `${activationGroupId}+${groupData.id}`, type: 'system-derived' };
+                const groupDataClone = { ...groupData, id: `${activationGroupId}+${groupData.id}`, type: 'system-derived' }
 
                 // Set defaultSelected to false for Equipped and Unequipped groups
                 if (['equipped', 'unequipped'].includes(groupData.id)) {
-                    groupDataClone.defaultSelected = false;
+                    groupDataClone.defaultSelected = false
                 }
 
                 // Create parent group data
-                const parentgroupData = { id: activationGroupId, type: 'system' };
+                const parentgroupData = { id: activationGroupId, type: 'system' }
 
                 // Add group to HUD
-                await this.addGroup(groupDataClone, parentgroupData);
+                await this.addGroup(groupDataClone, parentgroupData)
 
                 // Add spell slot info to group if actionType is 'spell'
                 if (actionType === 'spell') {
-                    this.addGroupInfo(groupDataClone);
+                    this.addGroupInfo(groupDataClone)
                 }
 
                 // Build actions
-                await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType);
+                await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType)
             }
         }
-
 
         /**
          * Build combat
@@ -434,7 +425,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build counters
          * @private
          */
-        async #buildCountersAsync () {
+        #buildCounters () {
             if (this.actorType !== 'character') return
 
             const actionType = 'counter'
@@ -1394,7 +1385,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Return resources
             if (consumeType === 'attribute') {
                 if (!consumeId) return ''
-                const parentId = consumeId.substring(0, consumeId.lastIndexOf('.'));
+                const parentId = consumeId.substring(0, consumeId.lastIndexOf('.'))
                 const target = this.actor.system[parentId]
 
                 return (target) ? `${target.value ?? '0'}${(target.max) ? `/${target.max}` : ''}` : ''
