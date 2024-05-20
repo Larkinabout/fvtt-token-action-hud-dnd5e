@@ -11,11 +11,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
      * Extend the action list
      */
-        extendActionHandler () {
+        async extendActionHandler () {
             this.actor = this.actionHandler.actor
             if (!this.actor) return
 
-            const actor = MagicItems.actor(this.actor.id)
+            const actor = await MagicItems.actor(this.actor.id)
 
             if (!actor) return
 

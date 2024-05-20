@@ -31,19 +31,19 @@
   ],
   "languages": [
     {
+      "lang": "cn",
+      "name": "中文",
+      "path": "languages/cn.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "languages/de.json"
+    },
+    {
       "lang": "en",
       "name": "English",
       "path": "languages/en.json"
-    },
-    {
-      "lang": "ko",
-      "name": "Korean",
-      "path": "languages/ko.json"
-    },
-    {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "languages/br.json"
     },
     {
       "lang": "es",
@@ -56,9 +56,9 @@
       "path": "languages/fr.json"
     },
     {
-      "lang": "pl",
-      "name": "Polish",
-      "path": "languages/pl.json"
+      "lang": "it",
+      "name": "italiano",
+      "path": "languages/it.json"
     },
     {
       "lang": "ja",
@@ -66,19 +66,19 @@
       "path": "languages/ja.json"
     },
     {
-      "lang": "cn",
-      "name": "中文",
-      "path": "languages/cn.json"
+      "lang": "ko",
+      "name": "Korean",
+      "path": "languages/ko.json"
     },
     {
-      "lang": "it",
-      "name": "italiano",
-      "path": "languages/it.json"
+      "lang": "pl",
+      "name": "Polish",
+      "path": "languages/pl.json"
     },
     {
-      "lang": "de",
-      "name": "Deutsch",
-      "path": "languages/de.json"
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "languages/pt-BR.json"
     }
   ],
   "packs": [],
@@ -102,9 +102,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.5.0",
+            "minimum": "1.5.4",
             "maximum": "1.5",
-            "verified": "1.5.3"
+            "verified": "1.5.4"
           }
         ]
       }

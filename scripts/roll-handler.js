@@ -62,7 +62,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 else this.#useItem(event, actor, actionId)
                 break
             case 'magicItem':
-                this.#rollMagicItem(actor, actionId)
+                await this.#rollMagicItem(actor, actionId)
                 break
             case 'skill':
                 this.#rollSkill(event, actor, actionId)
@@ -233,13 +233,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #rollMagicItem (actor, actionId) {
+        async #rollMagicItem (actor, actionId) {
             const actionParts = actionId.split('>')
 
             const itemId = actionParts[0]
             const magicEffectId = actionParts[1]
 
-            const magicItemActor = MagicItems.actor(actor.id)
+            const magicItemActor = await MagicItems.actor(actor.id)
 
             // magicitems module 3.0.0 does not support Item5e#use
             magicItemActor.roll(itemId, magicEffectId)
@@ -413,13 +413,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #toggleEffect (event, actor, actionId) {
             const effects = 'find' in actor.effects.entries ? actor.effects.entries : actor.effects
-            const effect = effects.find(effect => effect.id === actionId)
+            let effect = effects.find(effect => effect.id === actionId)
+
+            // only allow deletion if effect is directly on this actor
+            let internalEffect = true
+
+            // if the effect isn't directly on the actor, search all applicable effects for it
+            if (!effect) {
+                internalEffect = false
+                for (const e of actor.allApplicableEffects()) {
+                    if (e.id === actionId) {
+                        effect = e
+                    }
+                }
+            }
 
             if (!effect) return
 
             const isRightClick = this.isRightClick(event)
 
-            if (isRightClick) {
+            if (isRightClick && internalEffect) {
                 await effect.delete()
             } else {
                 await effect.update({ disabled: !effect.disabled })
