@@ -1255,7 +1255,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const preparationMode = spell.system.preparation.mode
 
             // Return true if spell is a cantrip, has a preparation mode other than 'prepared' or is prepared
-            if (level === 0 || preparationModes.includes(preparationMode) || prepared) return true
+            if (preparationModes.includes(preparationMode) || prepared) return true
             return false
         }
 
@@ -1471,8 +1471,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const icon = (prepared) ? PREPARED_ICON : `${PREPARED_ICON} tah-icon-disabled`
             const title = (prepared) ? coreModule.api.Utils.i18n('DND5E.SpellPrepared') : coreModule.api.Utils.i18n('DND5E.SpellUnprepared')
 
-            // Return icon if the preparation mode is 'prepared' and the spell is not a cantrip
-            return (preparationMode === 'prepared' && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : ''
+            // Return icon if the preparation mode is 'prepared'
+            return (preparationMode === 'prepared') ? `<i class="${icon}" title="${title}"></i>` : ''
         }
 
         async #getTooltipData (entity) {
