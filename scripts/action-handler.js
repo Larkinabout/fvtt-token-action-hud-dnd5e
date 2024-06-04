@@ -543,7 +543,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'effect'
 
             // Get effects
-            const effects = this.actor.effects
+            const effects = new Map()
+            for (const effect of this.actor.allApplicableEffects()) {
+                effects.set(effect.id, effect)
+            }
 
             // Exit if no effects exist
             if (effects.size === 0) return
