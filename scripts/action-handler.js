@@ -211,7 +211,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #buildAbilities (actionType, groupId) {
         // Get abilities
-            const abilities = (!this.actor) ? game.dnd5e.config.abilities : this.actor.system.abilities
+            const abilities = (!this.actor) ? CONFIG.DND5E.abilities : this.actor.system.abilities
 
             // Exit if no abilities exist
             if (abilities.length === 0) return
@@ -222,7 +222,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 .map(([abilityId, ability]) => {
                     const id = `${actionType}-${abilityId}`
                     const abbreviatedName = abilityId.charAt(0).toUpperCase() + abilityId.slice(1)
-                    const label = this.systemVersion >= '2.2' ? game.dnd5e.config.abilities[abilityId].label : game.dnd5e.config.abilities[abilityId]
+                    const label = this.systemVersion >= '2.2' ? CONFIG.DND5E.abilities[abilityId].label : CONFIG.DND5E.abilities[abilityId]
                     const name = this.abbreviateSkills ? abbreviatedName : label
                     // Localise
                     const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
@@ -854,7 +854,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'skill'
 
             // Get skills
-            const skills = (!this.actor) ? game.dnd5e.config.skills : this.actor.system.skills
+            const skills = (!this.actor) ? CONFIG.DND5E.skills : this.actor.system.skills
 
             // Exit if there are no skills
             if (skills.length === 0) return
@@ -865,9 +865,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     try {
                         const id = skill[0]
                         const abbreviatedName = id.charAt(0).toUpperCase() + id.slice(1)
-                        const name = this.abbreviateSkills ? abbreviatedName : game.dnd5e.config.skills[id].label
+                        const name = this.abbreviateSkills ? abbreviatedName : CONFIG.DND5E.skills[id].label
                         const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-                        const listName = `${actionTypeName}${game.dnd5e.config.skills[id].label}`
+                        const listName = `${actionTypeName}${CONFIG.DND5E.skills[id].label}`
                         const encodedValue = [actionType, id].join(this.delimiter)
                         const icon1 = this.#getProficiencyIcon(skills[id].value)
                         const mod = skills[id].total
@@ -1201,7 +1201,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #isActiveItem (item) {
             if (this.showItemsWithoutActivationCosts) return true
-            const activationTypes = Object.keys(game.dnd5e.config.abilityActivationTypes).filter((at) => at !== 'none')
+            const activationTypes = Object.keys(CONFIG.DND5E.abilityActivationTypes).filter((at) => at !== 'none')
             const activation = item.system.activation
             const activationType = activation?.type
             if ((activation && activationTypes.includes(activationType)) || item.type === 'tool') return true
@@ -1247,7 +1247,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (this.showUnpreparedSpells) return true
             // Set variables
             const level = spell.system.level
-            const preparationModes = Object.keys(game.dnd5e.config.spellPreparationModes)
+            const preparationModes = Object.keys(CONFIG.DND5E.spellPreparationModes)
                 .filter(preparationMode => preparationMode !== 'prepared')
             const preparationMode = spell.system.preparation.mode
 
