@@ -1,98 +1,98 @@
 {
   "tokenActionHud": {
     "dnd5e": {
-      "1stLevelSpells": "1st Level Spells",
-      "2ndLevelSpells": "2nd Level Spells",
-      "3rdLevelSpells": "3rd Level Spells",
-      "4thLevelSpells": "4th Level Spells",
-      "5thLevelSpells": "5th Level Spells",
-      "6thLevelSpells": "6th Level Spells",
-      "7thLevelSpells": "7th Level Spells",
-      "8thLevelSpells": "8th Level Spells",
-      "9thLevelSpells": "9th Level Spells",
-      "abilities": "Capacità",
-      "activeFeatures": "Active Features",
-      "artifact": "Artifact",
-      "artificerInfusions": "Artificer Infusions",
-      "atWillSpells": "At-Will Spells",
-      "backgroundFeatures": "Background Features",
+      "1stLevelSpells": "1° Livello Incantesimi",
+      "2ndLevelSpells": "2° Livello Incantesimi",
+      "3rdLevelSpells": "3° Livello Incantesimi",
+      "4thLevelSpells": "4° Livello Incantesimi",
+      "5thLevelSpells": "5° Livello Incantesimi",
+      "6thLevelSpells": "6° Livello Incantesimi",
+      "7thLevelSpells": "7° Livello Incantesimi",
+      "8thLevelSpells": "8° Livello Incantesimi",
+      "9thLevelSpells": "9° Livello Incantesimi",
+      "abilities": "Caratteristiche",
+      "activeFeatures": "Privilegi attivi",
+      "artifact": "Artefatto",
+      "artificerInfusions": "Infusioni Artefice",
+      "atWillSpells": "Incantesimi a Volontà",
+      "backgroundFeatures": "Privilegi di Background",
       "bonusActions": "Azioni bonus",
-      "cantrips": "Cantrips",
-      "channelDivinity": "Channel Divinity",
-      "check": "Check",
+      "cantrips": "Trucchetti",
+      "channelDivinity": "Incanalare Divinità",
+      "check": "Caratteristica",
       "checks": "Caratteristiche",
-      "classFeatures": "Class Features",
-      "common": "Common",
-      "condition": "Condition",
+      "classFeatures": "Privilegi di Classe",
+      "common": "Comune",
+      "condition": "Condizione",
       "conditions": "Condizioni",
       "counter": "Segnalino",
       "counters": "Segnalini",
-      "crewActions": "Azioni dell'equipaggio",
-      "defensiveTactics": "Defensive Tactics",
-      "eldritchInvocations": "Eldritch Invocations",
-      "elementalDisciplines": "Elemental Disciplines",
-      "feats": "Feats",
-      "fightingStyles": "Fighting Styles",
-      "huntersPrey": "Hunter's Prey",
-      "innateSpells": "Innate Spells",
-      "item": "Item",
-      "kiAbilities": "Ki Abilities",
+      "crewActions": "Azioni di gruppo",
+      "defensiveTactics": "Tattiche Difensive",
+      "eldritchInvocations": "Suppliche Occulte",
+      "elementalDisciplines": "Discipline elementali",
+      "feats": "Talenti",
+      "fightingStyles": "Stili di Combattimento",
+      "huntersPrey": "Preda del Cacciatore",
+      "innateSpells": "Incantesimi Innati",
+      "item": "Oggetto",
+      "kiAbilities": "Poteri Ki",
       "lair": "Tana",
       "lairActions": "Azioni di Tana",
       "legendary": "Leggendarie",
       "legendaryActions": "Azioni Leggendarie",
       "magicItems": "Oggetti Magici",
-      "maneuvers": "Maneuvers",
-      "metamagicOptions": "Metamagic Options",
-      "monsterFeatures": "Monster Features",
-      "multiattacks": "Multiattacks",
+      "maneuvers": "Manovre",
+      "metamagicOptions": "Opzioni di Metamagia",
+      "monsterFeatures": "Privilegi dei Mostri",
+      "multiattacks": "Multiattacco",
       "otherActions": "Altre azioni",
-      "pactBoons": "Pact Boons",
-      "pactSpells": "Pact Spells",
-      "passiveFeatures": "Passive Features",
-      "psionicPowers": "Psionic Powers",
-      "raceFeatures": "Race Features",
-      "rare": "Rare",
+      "pactBoons": "Doni del Patto",
+      "pactSpells": "Incantesimi del Patto",
+      "passiveFeatures": "Privilegi Passivi",
+      "psionicPowers": "Poteri Psionici",
+      "raceFeatures": "Privilegi di Razza",
+      "rare": "Raro",
       "rests": "Riposi",
       "rollInitiative": "Tira Iniziativa",
-      "runes": "Runes",
-      "skill": "Skill",
+      "runes": "Rune",
+      "skill": "Abilità",
       "skills": "Abilità",
-      "superiorHuntersDefense": "Superior Hunter's Defense",
-      "uncommon": "Uncommon",
-      "veryRare": "Very Rare",
+      "superiorHuntersDefense": "Difesa Superiore del Cacciatore",
+      "uncommon": "Non Comune",
+      "veryRare": "Molto Raro",
       "settings": {
         "abbreviateSkills": {
-          "hint": "Display skill and ability names as a three-character abbreviation",
-          "name": "Abbreviate Skill and Ability Names"
+          "hint": "Mostra nomi di Abilità e Caratteristiche in 3 Caratteri",
+          "name": "Abbrevia nomi di Abilità e Caratteristiche"
         },
         "displaySpellInfo": {
-          "hint": "Display spell component information, concentration, and ritual status next to the spell's name",
-          "name": "Display Spell Information"
+          "hint": "Mostra informazioni componenti incantesimo, concentrazione e stato del rituale vicino al nome incantesimo",
+          "name": "Mostra Informazioni Incantesimo"
         },
         "showItemsWithoutActivationCosts": {
-          "hint": "Show items without an activation cost",
-          "name": "Show Items without Activation Costs"
+          "hint": "Mostra Oggetti senza Costo di Attivazione",
+          "name": "Mostra Oggetti senza Costo di Attivazione"
         },
         "showSlowActions": {
-          "hint": "Show actions that take longer than one round",
-          "name": "Show Slow Actions"
+          "hint": "Mostra azioni che impiegano più di un round",
+          "name": "Mostra Azioni Lente"
         },
         "showUnchargedItems": {
-          "hint": "Show items with no charges remaining",
-          "name": "Show Uncharged Items"
+          "hint": "Mostra oggetti senza cariche rimanenti",
+          "name": "Mostra Oggetti Scarichi"
         },
         "showUnequippedItems": {
-          "hint": "Show unequipped items",
-          "name": "Show Unequipped Items"
+          "hint": "Mostra Oggetti non Equipaggiati",
+          "name": "Mostra Oggetti non Equipaggiati"
         },
         "showUnequippedItemsNpcs": {
-          "hint": "Show unequipped items for NPCs",
-          "name": "Show Unequipped Items for NPCs"
+          "hint": "Mostra Oggetti non Equipaggiati per PNG",
+          "name": "Mostra Oggetti non Equipaggiati per PNG"
         },
         "showUnpreparedSpells": {
-          "hint": "Show unprepared spells",
-          "name": "Show Unprepared Spells"
+          "hint": "Mostra Incantesimi non Preparati",
+          "name": "Mostra Incantesimi non Preparati"
         }
       }
     }
