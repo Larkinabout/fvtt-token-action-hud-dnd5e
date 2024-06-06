@@ -1,5 +1,5 @@
 // System Module Imports
-import { CONCENTRATION_ICON, ACTIVATION_TYPE_ICON, ACTION_TYPE, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
+import { ACTIVATION_TYPE_ICON, ACTION_TYPE, CONCENTRATION_ICON, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -1275,14 +1275,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} spell
          */
         #getSpellInfo (spell) {
-            const info = { text : '' }
+            const info = { text: '' }
             const componentsArray = []
             const components = spell.system?.properties
             const componentTypes = [
                 ['vocal', 'DND5E.ComponentVerbal'],
                 ['somatic', 'DND5E.ComponentSomatic'],
                 ['material', 'DND5E.ComponentMaterial']
-            ];
+            ]
             componentTypes.forEach(component => {
                 if (components?.has(component[0])) {
                     componentsArray.push(coreModule.api.Utils.i18n(component[1]))
@@ -1342,8 +1342,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #getQuantityData (item) {
             const quantity = item?.system?.quantity ?? 0
             return {
-                text : (quantity > 1) ? quantity : '',
-                title : `${coreModule.api.Utils.i18n('DND5E.Quantity')}: ${quantity}`
+                text: (quantity > 1) ? quantity : '',
+                title: `${coreModule.api.Utils.i18n('DND5E.Quantity')}: ${quantity}`
             }
         }
 
@@ -1393,7 +1393,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const text = `${target.value ?? '0'}${target.max ? `/${target.max}` : ''}`
                     return {
                         text,
-                        title : `${text} ${target.label ?? ''}`
+                        title: `${text} ${target.label ?? ''}`
                     }
                 }
 
@@ -1410,8 +1410,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (target?.system?.quantity) {
                     const text = `${consumeAmount > 1 ? `${consumeAmount} ${coreModule.api.Utils.i18n('DND5E.of')} ` : ''}${target.system.quantity}`
                     return {
-                        text : target.system.quantity,
-                        title : `${target.system.quantity} ${target.name}`
+                        text: target.system.quantity,
+                        title: `${target.system.quantity} ${target.name}`
                     }
                 }
             }
