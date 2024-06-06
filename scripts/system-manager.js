@@ -58,10 +58,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const name = coreModule.api.Utils.i18n('tokenActionHud.dnd5e.magicItems')
                 defaults.groups.push(
                     {
-                        id: 'magic-items',
+                        "id": 'magic-items',
                         name,
-                        listName: `Group: ${name}`,
-                        type: 'system'
+                        "listName": `Group: ${name}`,
+                        "type": 'system'
                     }
                 )
                 defaults.groups.sort((a, b) => a.id.localeCompare(b.id))

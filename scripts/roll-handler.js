@@ -130,6 +130,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} event The event
          * @param {object} actor The actor
          * * @param {string} actionId The action id
+         * @param actionId
          */
         async #modifyCustomCounter (event, actor, actionId) {
             if (!coreModule.api.Utils.isModuleActive('dnd5e-custom-counters')) return

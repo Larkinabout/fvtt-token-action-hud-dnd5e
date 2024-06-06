@@ -15,8 +15,6 @@ export class RollHandlerObsidian extends RollHandler {
      * Roll Ability Save
      * @override
      * @param {object} event
-     * @param {string} actorId
-     * @param {string} tokenId
      * @param {string} actionId
      */
     _rollAbilitySave (event, actionId) {
