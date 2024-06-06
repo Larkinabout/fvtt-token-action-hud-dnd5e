@@ -557,6 +557,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Iterate effects and add to a map based on the isTemporary value
             for (const [effectId, effect] of effects.entries()) {
+                if (effect.isSuppressed || (effect.parent.system?.identified === false && !game.user.isGM)) continue
                 const isTemporary = effect.isTemporary
                 if (isTemporary) {
                     temporaryEffects.set(effectId, effect)
@@ -1290,9 +1291,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const info3 = {}
 
             // Components
-            if (components?.vocal) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentVerbal'))
-            if (components?.somatic) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentSomatic'))
-            if (components?.material) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentMaterial'))
+            if (components?.has('vocal')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentVerbal'))
+            if (components?.has('somatic')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentSomatic'))
+            if (components?.has('material')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentMaterial'))
 
             if (componentsArray.length) {
                 info1.title = componentsArray.join(', ')
@@ -1300,14 +1301,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Concentration
-            if (components?.concentration) {
+            if (components?.has('concentration')) {
                 const title = coreModule.api.Utils.i18n('DND5E.Concentration')
                 info2.title = title
                 info2.text = title.charAt(0).toUpperCase()
             }
 
             // Ritual
-            if (components?.ritual) {
+            if (components?.has('ritual')) {
                 const title = coreModule.api.Utils.i18n('DND5E.Ritual')
                 info3.title = title
                 info3.text = title.charAt(0).toUpperCase()
@@ -1367,7 +1368,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #getUsesData (item) {
             const uses = item?.system?.uses
-            if (!uses) return ''
+            if (!uses?.per) return ''
             return (uses.value > 0 || uses.max > 0) ? `${uses.value ?? '0'}${(uses.max > 0) ? `/${uses.max}` : ''}` : ''
         }
 
@@ -1389,7 +1390,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (consumeType === 'attribute') {
                 if (!consumeId) return ''
                 const parentId = consumeId.substr(0, consumeId.lastIndexOf('.'))
-                const target = this.actor.system[parentId]
+                const target = foundry.utils.getProperty(this.actor.system, parentId)
 
                 return (target) ? `${target.value ?? '0'}${(target.max) ? `/${target.max}` : ''}` : ''
             }
