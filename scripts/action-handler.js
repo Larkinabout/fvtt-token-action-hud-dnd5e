@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTIVATION_TYPE_ICON, ACTION_TYPE, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
+import { CONCENTRATION_ICON, ACTIVATION_TYPE_ICON, ACTION_TYPE, CONDITION, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, WEAPON_PROPERTY } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -1169,14 +1169,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const encodedValue = [actionType, id].join(this.delimiter)
             const img = coreModule.api.Utils.getImage(entity)
             const icon1 = this.#getActivationTypeIcon(entity?.system?.activation?.type)
-            let icon2 = null
-            let info = null
-            if (entity.type === 'spell') {
-                icon2 = this.#getPreparedIcon(entity)
-                if (this.displaySpellInfo) info = this.#getSpellInfo(entity)
-            } else {
-                info = this.#getItemInfo(entity)
-            }
+            const icon2 = entity.type === 'spell' && this.showUnpreparedSpells ? this.#getPreparedIcon(entity) : null
+            const icon3 = entity.type === 'spell' && this.displaySpellInfo ? this.#getConcentrationIcon(entity) : null
+            const info = this.#getItemInfo(entity)
             const info1 = info?.info1
             const info2 = info?.info2
             const info3 = info?.info3
@@ -1190,6 +1185,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 img,
                 icon1,
                 icon2,
+                icon3,
                 info1,
                 info2,
                 info3,
@@ -1267,15 +1263,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {object}
          */
         #getItemInfo (item) {
-            const quantityData = this.#getQuantityData(item)
-            const usesData = this.#getUsesData(item)
-            const consumeData = this.#getConsumeData(item)
+            const info1 = item.type !== 'spell' ? this.#getQuantityData(item) : this.displaySpellInfo ? this.#getSpellInfo(item) : null
+            const info2 = this.#getUsesData(item)
+            const info3 = this.#getConsumeData(item)
 
-            return {
-                info1: { text: quantityData },
-                info2: { text: usesData },
-                info3: { text: consumeData }
-            }
+            return { info1, info2, info3 }
         }
 
         /**
@@ -1283,38 +1275,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} spell
          */
         #getSpellInfo (spell) {
-            const components = spell.system.properties
-
+            const info = { text : '' }
             const componentsArray = []
-            const info1 = {}
-            const info2 = {}
-            const info3 = {}
-
-            // Components
-            if (components?.has('vocal')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentVerbal'))
-            if (components?.has('somatic')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentSomatic'))
-            if (components?.has('material')) componentsArray.push(coreModule.api.Utils.i18n('DND5E.ComponentMaterial'))
-
-            if (componentsArray.length) {
-                info1.title = componentsArray.join(', ')
-                info1.text = componentsArray.map(component => component.charAt(0).toUpperCase()).join('')
-            }
-
-            // Concentration
-            if (components?.has('concentration')) {
-                const title = coreModule.api.Utils.i18n('DND5E.Concentration')
-                info2.title = title
-                info2.text = title.charAt(0).toUpperCase()
-            }
+            const components = spell.system?.properties
+            const componentTypes = [
+                ['vocal', 'DND5E.ComponentVerbal'],
+                ['somatic', 'DND5E.ComponentSomatic'],
+                ['material', 'DND5E.ComponentMaterial']
+            ];
+            componentTypes.forEach(component => {
+                if (components?.has(component[0])) {
+                    componentsArray.push(coreModule.api.Utils.i18n(component[1]))
+                    info.text += coreModule.api.Utils.i18n(`${component[1]}Abbr`)
+                }
+            })
 
             // Ritual
             if (components?.has('ritual')) {
-                const title = coreModule.api.Utils.i18n('DND5E.Ritual')
-                info3.title = title
-                info3.text = title.charAt(0).toUpperCase()
+                componentsArray.push(`[${coreModule.api.Utils.i18n('DND5E.Ritual')}]`)
+                info.text += ` [${coreModule.api.Utils.i18n('DND5E.RitualAbbr')}]`
             }
 
-            return { info1, info2, info3 }
+            info.title = componentsArray.join(', ')
+
+            return info
         }
 
         /**
@@ -1357,19 +1341,32 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #getQuantityData (item) {
             const quantity = item?.system?.quantity ?? 0
-            return (quantity > 1) ? quantity : ''
+            return {
+                text : (quantity > 1) ? quantity : '',
+                title : `${coreModule.api.Utils.i18n('DND5E.Quantity')}: ${quantity}`
+            }
         }
 
         /**
          * Get uses
          * @private
          * @param {object} item
+         * @param {string} consumeName
+         * @param {integer} consumeAmount
          * @returns {string}
          */
-        #getUsesData (item) {
+        #getUsesData (item, consumeName, consumeAmount) {
             const uses = item?.system?.uses
-            if (!uses?.per) return ''
-            return (uses.value > 0 || uses.max > 0) ? `${uses.value ?? '0'}${(uses.max > 0) ? `/${uses.max}` : ''}` : ''
+            if (uses?.per && (uses.value > 0 || uses.max > 0)) {
+                const of = coreModule.api.Utils.i18n('DND5E.of')
+                const per = coreModule.api.Utils.i18n('DND5E.per')
+                const period = CONFIG.DND5E.limitedUsePeriods[`${uses.per}`].label
+                const amount = consumeAmount !== undefined ? consumeAmount : uses.amount
+                const text = `${amount > 1 ? `${amount} ${of} ` : ''}${uses.value ?? '0'}${uses.max > 0 ? `/${uses.max}` : ''}`
+                const title = `${uses.amount > 1 ? `/${uses.max}` : ''}${text} ${per} ${period}${consumeName ? ` (${of} ${consumeName})` : ''}`
+                return { text, title }
+            }
+            return {}
         }
 
         /**
@@ -1383,29 +1380,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         // Get consume target and type
             const consumeId = item?.system?.consume?.target
             const consumeType = item?.system?.consume?.type
+            const consumeAmount = item?.system?.consume?.amount
 
-            if (consumeId === item.id) return ''
+            if (!consumeId || consumeId === item.id) return {}
 
             // Return resources
             if (consumeType === 'attribute') {
-                if (!consumeId) return ''
                 const parentId = consumeId.substr(0, consumeId.lastIndexOf('.'))
                 const target = foundry.utils.getProperty(this.actor.system, parentId)
 
-                return (target) ? `${target.value ?? '0'}${(target.max) ? `/${target.max}` : ''}` : ''
+                if (target) {
+                    const text = `${target.value ?? '0'}${target.max ? `/${target.max}` : ''}`
+                    return {
+                        text,
+                        title : `${text} ${target.label ?? ''}`
+                    }
+                }
+
+            } else {
+
+                const target = this.items.get(consumeId)
+
+                // Return charges
+                if (consumeType === 'charges') {
+                    return this.#getUsesData(target, target.name, consumeAmount)
+                }
+
+                // Return quantity
+                if (target?.system?.quantity) {
+                    const text = `${consumeAmount > 1 ? `${consumeAmount} ${coreModule.api.Utils.i18n('DND5E.of')} ` : ''}${target.system.quantity}`
+                    return {
+                        text : target.system.quantity,
+                        title : `${target.system.quantity} ${target.name}`
+                    }
+                }
             }
 
-            const target = this.items.get(consumeId)
-
-            // Return charges
-            if (consumeType === 'charges') {
-                const uses = target?.system.uses
-
-                return (uses?.value) ? `${uses.value}${(uses.max) ? `/${uses.max}` : ''}` : ''
-            }
-
-            // Return quantity
-            return target?.system?.quantity ?? ''
+            return {}
         }
 
         /**
@@ -1460,20 +1471,33 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
+         * Get icon for concentration type
+         * @private
+         * @param {object} spell
+         * @returns {string}
+         */
+        #getConcentrationIcon (spell) {
+            const title = coreModule.api.Utils.i18n('DND5E.ScrollRequiresConcentration')
+            const icon = CONCENTRATION_ICON
+            if (spell.system?.properties?.has('concentration'))
+                return `<i class="${icon}" title="${title}"></i>`
+        }
+
+        /**
          * Get icon for a prepared spell
          * @private
-         * @param {boolean} prepararation
+         * @param {object} spell
          * @returns
          */
         #getPreparedIcon (spell) {
             const level = spell.system.level
             const preparationMode = spell.system.preparation.mode
             const prepared = spell.system.preparation.prepared
-            const icon = (prepared) ? PREPARED_ICON : `${PREPARED_ICON} tah-icon-disabled`
-            const title = (prepared) ? coreModule.api.Utils.i18n('DND5E.SpellPrepared') : coreModule.api.Utils.i18n('DND5E.SpellUnprepared')
+            const icon = prepared ? PREPARED_ICON : `${PREPARED_ICON} tah-icon-disabled`
+            const title = preparationMode === 'always' ? coreModule.api.Utils.i18n('DND5E.SpellPrepAlways') : prepared ? coreModule.api.Utils.i18n('DND5E.SpellPrepared') : coreModule.api.Utils.i18n('DND5E.SpellUnprepared')
 
-            // Return icon if the preparation mode is 'prepared' and the spell is not a cantrip
-            return (preparationMode === 'prepared' && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : ''
+            // Return icon if the preparation mode is 'prepared' or 'always' and the spell is not a cantrip
+            return ((preparationMode === 'prepared' || preparationMode === 'always') && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : ''
         }
 
         async #getTooltipData (entity) {
