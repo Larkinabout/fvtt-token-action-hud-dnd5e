@@ -1169,8 +1169,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const encodedValue = [actionType, id].join(this.delimiter)
             const img = coreModule.api.Utils.getImage(entity)
             const icon1 = this.#getActivationTypeIcon(entity?.system?.activation?.type)
-            const icon2 = entity.type === 'spell' && this.showUnpreparedSpells ? this.#getPreparedIcon(entity) : null
-            const icon3 = entity.type === 'spell' && this.displaySpellInfo ? this.#getConcentrationIcon(entity) : null
+            const icon2 = this.#getPreparedIcon(entity)
+            const icon3 = this.#getConcentrationIcon(entity)
             const info = this.#getItemInfo(entity)
             const info1 = info?.info1
             const info2 = info?.info2
@@ -1263,7 +1263,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {object}
          */
         #getItemInfo (item) {
-            const info1 = item.type !== 'spell' ? this.#getQuantityData(item) : this.displaySpellInfo ? this.#getSpellInfo(item) : null
+            const info1 = item.type === 'spell' ? this.#getSpellInfo(item) : this.#getQuantityData(item)
             const info2 = this.#getUsesData(item)
             const info3 = this.#getConsumeData(item)
 
@@ -1275,6 +1275,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} spell
          */
         #getSpellInfo (spell) {
+            if (!this.displaySpellInfo) return null
             const info = { text: '' }
             const componentsArray = []
             const components = spell.system?.properties
@@ -1396,9 +1397,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         title: `${text} ${target.label ?? ''}`
                     }
                 }
-
             } else {
-
                 const target = this.items.get(consumeId)
 
                 // Return charges
@@ -1410,8 +1409,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (target?.system?.quantity) {
                     const text = `${consumeAmount > 1 ? `${consumeAmount} ${coreModule.api.Utils.i18n('DND5E.of')} ` : ''}${target.system.quantity}`
                     return {
-                        text: target.system.quantity,
-                        title: `${target.system.quantity} ${target.name}`
+                        text,
+                        title: `${text} ${target.name}`
                     }
                 }
             }
@@ -1477,10 +1476,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {string}
          */
         #getConcentrationIcon (spell) {
+            if (spell?.type !== 'spell' || !this.displaySpellInfo || !spell.system?.properties?.has('concentration')) return null
             const title = coreModule.api.Utils.i18n('DND5E.ScrollRequiresConcentration')
             const icon = CONCENTRATION_ICON
-            if (spell.system?.properties?.has('concentration'))
-                return `<i class="${icon}" title="${title}"></i>`
+            return `<i class="${icon}" title="${title}"></i>`
         }
 
         /**
@@ -1490,6 +1489,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns
          */
         #getPreparedIcon (spell) {
+            if (spell?.type !== 'spell' || !this.showUnpreparedSpells) return null
             const level = spell.system.level
             const preparationMode = spell.system.preparation.mode
             const prepared = spell.system.preparation.prepared
@@ -1497,7 +1497,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const title = preparationMode === 'always' ? coreModule.api.Utils.i18n('DND5E.SpellPrepAlways') : prepared ? coreModule.api.Utils.i18n('DND5E.SpellPrepared') : coreModule.api.Utils.i18n('DND5E.SpellUnprepared')
 
             // Return icon if the preparation mode is 'prepared' or 'always' and the spell is not a cantrip
-            return ((preparationMode === 'prepared' || preparationMode === 'always') && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : ''
+            return ((preparationMode === 'prepared' || preparationMode === 'always') && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null
         }
 
         async #getTooltipData (entity) {
