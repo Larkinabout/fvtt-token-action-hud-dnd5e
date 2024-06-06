@@ -557,7 +557,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Iterate effects and add to a map based on the isTemporary value
             for (const [effectId, effect] of effects.entries()) {
-                if (effect.isSuppressed || (effect.parent.system?.identified === false && !game.user.isGM)) continue
+                if (effect.isSuppressed || (effect.parent?.system?.identified === false && !game.user.isGM)) continue
                 const isTemporary = effect.isTemporary
                 if (isTemporary) {
                     temporaryEffects.set(effectId, effect)
@@ -1507,15 +1507,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (this.tooltipsSetting === 'nameOnly') return name
 
-            const description = (typeof entity?.system?.description === 'string') ? entity?.system?.description : entity?.system?.description?.value ?? ''
-            const modifiers = entity?.modifiers ?? null
-            const properties = [
-                ...entity.system?.chatProperties ?? [],
-                ...entity.system?.equippableItemCardProperties ?? [],
-                ...entity.system?.activatedEffectCardProperties ?? []
-            ].filter(p => p)
-            const rarity = entity?.rarity ?? null
-            const traits = (entity?.type === 'weapon') ? this.#getWeaponProperties(entity?.system?.properties) : null
+            const unidentified = entity.system?.identified === false
+            const description = (typeof entity?.system?.description === 'string') ? entity?.system?.description : (unidentified ? entity?.system?.unidentified?.description : entity?.system?.description?.value) ?? ''
+            let modifiers, properties, rarity, traits
+            if (!unidentified) {
+                modifiers = entity?.modifiers ?? null
+                properties = [
+                    ...entity.system?.chatProperties ?? [],
+                    ...entity.system?.equippableItemCardProperties ?? [],
+                    ...entity.system?.activatedEffectCardProperties ?? []
+                ].filter(p => p)
+                rarity = unidentified ? null : entity?.rarity ?? null
+                traits = (entity?.type === 'weapon') ? this.#getWeaponProperties(entity?.system?.properties) : null
+            }
             return { name, description, modifiers, properties, rarity, traits }
         }
 
