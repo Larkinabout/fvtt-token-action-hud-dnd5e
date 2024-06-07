@@ -53,7 +53,7 @@ export const ACTIVATION_TYPE_ICON = {
 /**
  * Concentration icon
  */
-export const CONCENTRATION_ICON = 'fas fa-circle-c'
+export const CONCENTRATION_ICON = 'fas fa-head-side-brain'
 
 /**
  * Conditions
