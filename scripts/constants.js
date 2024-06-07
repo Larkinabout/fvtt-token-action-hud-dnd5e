@@ -53,7 +53,7 @@ export const ACTIVATION_TYPE_ICON = {
 /**
  * Concentration icon
  */
-export const CONCENTRATION_ICON = 'fas fa-head-side-brain'
+export const CONCENTRATION_ICON = 'systems/dnd5e/icons/svg/statuses/concentrating.svg'
 
 /**
  * Conditions

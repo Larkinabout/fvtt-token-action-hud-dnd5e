@@ -1477,9 +1477,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #getConcentrationIcon (spell) {
             if (spell?.type !== 'spell' || !this.displaySpellInfo || !spell.system?.properties?.has('concentration')) return null
-            const title = coreModule.api.Utils.i18n('DND5E.Scroll.RequiresConcentration')
+            const title = coreModule.api.Utils.i18n('DND5E.ScrollRequiresConcentration')
             const icon = CONCENTRATION_ICON
-            return `<i class="${icon}" title="${title}"></i>`
+            return `<dnd5e-icon src="${icon}" title="${title}">`
         }
 
         /**
