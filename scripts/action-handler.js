@@ -252,12 +252,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /**
          * Build activations
-         * @param {array} items       The items
-         * @param {object} groupData  The group data
-         * @param {string} actionType The action type
+         * @public
+         * @param {object} data  groupData, actionData, actionType
          */
-        async #buildActivations (items, groupData, actionType = 'item') {
-        // Create map of items according to activation type
+        async buildActivations (data) {
+            const { groupData, actionData, actionType = 'item' } = data
+
+            // Create map of items according to activation type
             const activationItems = new Map()
 
             // Create activation type mappings
@@ -274,7 +275,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Loop through items
-            for (const [key, value] of items) {
+            for (const [key, value] of actionData) {
                 const activationType = value.system?.activation?.type
                 const activationTypeOther = (Object.keys(activationTypeMappings).includes(activationType)) ? activationType : 'other'
                 const groupId = activationTypeMappings[activationTypeOther]
@@ -304,8 +305,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     this.addGroupInfo(groupDataClone)
                 }
 
+                const actionData = activationItems.get(activationGroupId)
+
                 // Build actions
-                await this.#buildActions(activationItems.get(activationGroupId), groupDataClone, actionType)
+                await this.buildActions({ groupData: groupDataClone, actionData, actionType })
             }
         }
 
@@ -568,9 +571,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             await Promise.all([
                 // Build passive effects
-                this.#buildActions(passiveEffects, { id: 'passive-effects', type: 'system' }, actionType),
+                this.buildActions({ groupData: { id: 'passive-effects', type: 'system' }, actionData: passiveEffects, actionType }),
                 // Build temporary effects
-                this.#buildActions(temporaryEffects, { id: 'temporary-effects', type: 'system' }, actionType)
+                this.buildActions({ groupData: { id: 'temporary-effects', type: 'system' }, actionData: temporaryEffects, actionType })
             ])
         }
 
@@ -707,13 +710,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     type: 'system'
                 }
 
-                const features = featuresMap.get(groupId)
+                const actionData = featuresMap.get(groupId)
+                const data = { groupData, actionData, actionType }
 
                 // Build actions
-                await this.#buildActions(features, groupData, actionType)
+                await this.buildActions(data)
 
                 // Build activations
-                if (groupNameMappings[groupId]) await this.#buildActivations(features, groupData, actionType)
+                if (groupNameMappings[groupId]) await this.buildActivations(data)
             }
         }
 
@@ -798,14 +802,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     type: 'system'
                 }
 
-                const inventory = inventoryMap.get(groupId)
+                const actionData = inventoryMap.get(groupId)
+                const data = { groupData, actionData }
 
                 // Build actions
-                await this.#buildActions(inventory, groupData)
+                await this.buildActions(data)
 
                 // Build activations
                 if (this.activationgroupIds) {
-                    await this.#buildActivations(inventory, groupData)
+                    await this.buildActivations(data)
                 }
             }
         }
@@ -1059,13 +1064,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add spell slot info to group
                 this.addGroupInfo(groupData)
 
-                const spells = spellsMap.get(groupId)
+                const actionData = spellsMap.get(groupId)
+                const data = { groupData, actionData, actionType }
 
                 // Build actions
-                await this.#buildActions(spells, groupData, actionType)
+                await this.buildActions(data)
 
                 // Build activations
-                if (this.activationgroupIds) { await this.#buildActivations(spells, groupData, actionType) }
+                if (this.activationgroupIds) { await this.buildActivations(data) }
             }
         }
 
@@ -1122,21 +1128,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /**
          * Build actions
-         * @private
-         * @param {object} items
-         * @param {object} groupData
-         * @param {string} actionType
+         * @public
+         * @param {object} data actionData, groupData, actionType
+         * @param {object} options
          */
-        async #buildActions (items, groupData, actionType = 'item') {
-        // Exit if there are no items
-            if (items.size === 0) return
+        async buildActions (data, options) {
+            const { actionData, groupData, actionType } = data
+
+            // Exit if there is no action data
+            if (actionData.size === 0) return
 
             // Exit if there is no groupId
             const groupId = (typeof groupData === 'string' ? groupData : groupData?.id)
             if (!groupId) return
 
             // Get actions
-            const actions = await Promise.all([...items].map(async item => await this.#getAction(actionType, item[1])))
+            const actions = await Promise.all([...actionData].map(async item => await this.#getAction(actionType, item[1])))
 
             // Add actions to action list
             this.addActions(actions, groupData)
@@ -1147,15 +1154,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          * @param {string} actionType
          * @param {object} entity
+         * @param {object} options
          * @returns {object}
          */
-        async #getAction (actionType, entity) {
+        async #getAction (actionType = 'item', entity) {
             const id = entity.id ?? entity._id
             let name = entity?.name ?? entity?.label
             if (
                 entity?.system?.recharge &&
-            !entity?.system?.recharge?.charged &&
-            entity?.system?.recharge?.value
+                !entity?.system?.recharge?.charged &&
+                entity?.system?.recharge?.value
             ) {
                 name += ` (${coreModule.api.Utils.i18n('DND5E.Recharge')})`
             }

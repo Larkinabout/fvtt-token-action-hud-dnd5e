@@ -13,7 +13,8 @@ export default [
         },
         output: {
             format: 'esm',
-            file: 'scripts/token-action-hud-dnd5e.min.js'
+            file: 'scripts/token-action-hud-dnd5e.min.js',
+            sourcemap: true
         },
         plugins: [
             terser({ keep_classnames: true, keep_fnames: true }),
