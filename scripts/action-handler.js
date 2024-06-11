@@ -1361,7 +1361,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (uses?.per && (consumeName || uses?.prompt) && (uses.value > 0 || uses.max > 0)) {
                 const of = coreModule.api.Utils.i18n('DND5E.of')
                 const per = uses.per === 'charges' ? '' : ` ${coreModule.api.Utils.i18n('DND5E.per')}`
-                const period = CONFIG.DND5E.limitedUsePeriods[uses.per].label
+                const period = CONFIG.DND5E.limitedUsePeriods[uses.per]?.label ?? uses.per
                 const amount = consumeAmount !== undefined ? consumeAmount : uses.amount
                 const text = `${amount > 1 ? `${amount} ${of} ` : ''}${uses.value ?? '0'}${uses.max > 0 ? `/${uses.max}` : ''}`
                 const title = `${text}${per} ${period}${consumeName ? ` (${of} ${consumeName})` : ''}`
