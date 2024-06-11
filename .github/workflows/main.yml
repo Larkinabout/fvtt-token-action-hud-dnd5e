@@ -38,7 +38,7 @@ jobs:
       # Create a "module.zip" archive containing all the module's required files.
       # If you have other directories or files that will need to be added to
       # your packaged module, add them here.
-      - run: zip -r ./module.zip module.json readme.md LICENSE icons/ languages/ scripts/token-action-hud-dnd5e.min.js styles/
+      - run: zip -r ./module.zip module.json readme.md LICENSE icons/ languages/ scripts/token-action-hud-dnd5e.min.js* styles/
 
       # Update the GitHub release with the manifest and module archive files.
       - name: Update Release with Files
