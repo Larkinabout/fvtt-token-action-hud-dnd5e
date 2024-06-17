@@ -1406,10 +1406,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     }
                 }
             } else {
-                const target = this.items.get(consumeId)
+                const target = this.actor.items?.get(consumeId)
 
                 // Return charges
-                if (consumeType === 'charges') {
+                if (target && consumeType === 'charges') {
                     return this.#getUsesData(target, target.name, consumeAmount)
                 }
 
