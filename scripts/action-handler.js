@@ -1543,9 +1543,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const journalEntry = (CONDITION[id]) ? (CONDITION[id]?.uuid) ? await fromUuid(CONDITION[id].uuid) : null : null
             const description = journalEntry?.text?.content ?? ''
+            const relativeTo = journalEntry
             return {
                 name,
-                description
+                description,
+                relativeTo
             }
         }
 
@@ -1564,8 +1566,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const nameHtml = `<h3>${name}</h3>`
 
+            const relativeTo = tooltipData.relativeTo ?? this.actor
+
             const description = tooltipData?.descriptionLocalised ??
-                await TextEditor.enrichHTML(coreModule.api.Utils.i18n(tooltipData?.description ?? ''), { async: true, relativeTo: this.actor, secrets: true })
+                await TextEditor.enrichHTML(coreModule.api.Utils.i18n(tooltipData?.description ?? ''), { async: true, relativeTo, secrets: true })
 
             const rarityHtml = tooltipData?.rarity
                 ? `<span class="tah-tag ${tooltipData.rarity}">${coreModule.api.Utils.i18n(RARITY[tooltipData.rarity])}</span>`
