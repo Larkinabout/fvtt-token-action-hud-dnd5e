@@ -18,8 +18,8 @@
   "flags": {},
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": "11",
-    "verified": "12.325"
+    "minimum": "12",
+    "verified": "12.331"
   },
   "esmodules": [
     "./scripts/token-action-hud-dnd5e.min.js"
@@ -89,9 +89,9 @@
         "type": "system",
         "compatibility": [
           {
-            "minimum": "3.0.0",
-            "maximum": "3",
-            "verified": "3.2.0"
+            "minimum": "4.0.0",
+            "maximum": "4",
+            "verified": "4.0.2"
           }
         ]
       }
