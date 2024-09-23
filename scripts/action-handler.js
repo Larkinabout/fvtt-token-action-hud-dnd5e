@@ -1,7 +1,7 @@
 // System Module Imports
 import {
   ACTIVATION_TYPE, ACTION_TYPE, CONCENTRATION_ICON, CUSTOM_DND5E, FEATURE_GROUP_IDS,
-  PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, SPELL_GROUP_IDS
+  GROUP, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, SPELL_GROUP_IDS
 } from "./constants.js";
 import { Utils } from "./utils.js";
 
@@ -146,37 +146,29 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {string} groupId
      */
     #buildAbilities(actionType, groupId) {
-      // Get abilities
+      // Get abilities and exit if none exist
       const abilities = this.actor?.system.abilities || CONFIG.DND5E.abilities;
-
-      // Exit if no abilities exist
       if (abilities.length === 0) return;
-
-      // Helper to build each action
-      const buildAction = (abilityId, ability) => {
-        const name = CONFIG.DND5E.abilities[abilityId].label;
-        const mod = (groupId === "saves") ? ability?.save : ability?.mod;
-        return {
-          id: `${actionType}-${abilityId}`,
-          name: (this.abbreviateSkills) ? coreModule.api.Utils.capitalize(abilityId) : name,
-          encodedValue: [actionType, abilityId].join(this.delimiter),
-          icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
-          info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(mod) } : null,
-          info2: (this.actor && groupId === "abilities") ? { text: `(${coreModule.api.Utils.getModifier(ability?.save)})` } : null,
-          listName: this.#getListName(actionType, name)
-        };
-      };
 
       // Get actions
       const actions = Object.entries(abilities)
         .filter(ability => abilities[ability[0]].value !== 0)
-        .map(([abilityId, ability]) => { return buildAction(abilityId, ability); });
-
-      // Create group data
-      const groupData = { id: groupId };
+        .map(([abilityId, ability]) => {
+          const name = CONFIG.DND5E.abilities[abilityId].label;
+          const mod = (groupId === "saves") ? ability?.save : ability?.mod;
+          return {
+            id: `${actionType}-${abilityId}`,
+            name: (this.abbreviateSkills) ? coreModule.api.Utils.capitalize(abilityId) : name,
+            encodedValue: [actionType, abilityId].join(this.delimiter),
+            icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
+            info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(mod) } : null,
+            info2: (this.actor && groupId === "abilities") ? { text: `(${coreModule.api.Utils.getModifier(ability?.save)})` } : null,
+            listName: this.#getListName(actionType, name)
+          };
+        });
 
       // Add actions to action list
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: groupId });
     }
 
     /**
@@ -234,16 +226,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      */
     #buildCombat() {
-      const actionType = "utility";
-
-      // Set combat types
-      const combatTypes = {
-        initiative: { id: "initiative", name: "tokenActionHud.dnd5e.rollInitiative" },
-        endTurn: { id: "endTurn", name: "tokenActionHud.endTurn" }
+      // If token's turn, include endTurn
+      const combatType = {
+        initiative: "tokenActionHud.dnd5e.rollInitiative",
+        ...(game.combat?.current?.tokenId !== this.token?.id && { endTurn: "tokenActionHud.endTurn" })
       };
-
-      // Delete endTurn for multiple tokens
-      if (game.combat?.current?.tokenId !== this.token?.id) delete combatTypes.endTurn;
 
       const tokens = coreModule.api.Utils.getControlledTokens();
       const tokenIds = tokens?.map(token => token.id);
@@ -251,36 +238,31 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         ? game.combat.combatants.filter(combatant => tokenIds.includes(combatant.tokenId))
         : [];
 
-      const getInfo1 = combatTypeId => {
-        if (combatTypeId === "initiative" && combatants.length === 1) {
-          // Get initiative for single token
+      const getInfo1 = id => {
+        if (id === "initiative" && combatants.length === 1) {
           const currentInitiative = combatants[0].initiative;
           return { class: "tah-spotlight", text: currentInitiative };
         }
         return {};
       };
 
-      const getActive = () => {
-        return combatants.length > 0 && (combatants.every(combatant => combatant?.initiative)) ? " active" : "";
-      };
+      const getActive = () => { return combatants.length > 0 && (combatants.every(combatant => combatant?.initiative)) ? " active" : "";};
 
       // Get actions
-      const actions = Object.values(combatTypes).map(combatType => {
+      const actionType = "utility";
+      const actions = Object.entries(combatType).map(([id, name]) => {
         return {
-          id: combatType.id,
-          name: game.i18n.localize(combatType.name),
-          encodedValue: [actionType, combatType.id].join(this.delimiter),
-          info1: getInfo1(combatType.id),
-          cssClass: (combatType.id === "initiative" ) ? `toggle${getActive()}` : "",
-          listName: this.#getListName(actionType, combatType.name)
+          id,
+          name: game.i18n.localize(name),
+          encodedValue: [actionType, id].join(this.delimiter),
+          info1: getInfo1(id),
+          cssClass: (id === "initiative" ) ? `toggle${getActive()}` : "",
+          listName: this.#getListName(actionType, name)
         };
       });
 
-      // Create group data
-      const groupData = { id: "combat" };
-
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "combat" });
     }
 
     /**
@@ -290,15 +272,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     async #buildConditions() {
       if (this.tokens?.length === 0) return;
 
-      const actionType = "condition";
-
-      // Get conditions
+      // Get conditions and exit if none exist
       const conditions = CONFIG.statusEffects.filter(condition => condition.id !== "");
-
-      // Exit if no conditions exist
       if (conditions.length === 0) return;
 
       // Get actions
+      const actionType = "condition";
       const actions = await Promise.all(conditions.map(async condition => {
         const hasCondition = this.actors.every(actor => {
           return actor.effects.some(effect => effect.statuses.some(status => status === condition.id)
@@ -316,11 +295,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         };
       }));
 
-      // Create group data
-      const groupData = { id: "conditions" };
-
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "conditions" });
     }
 
     /**
@@ -332,9 +308,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       const actionType = "counter";
 
-      let counters = game.settings.get(CUSTOM_DND5E.ID, CUSTOM_DND5E.COUNTERS[this.actor?.type]) ?? [];
+      let counters = game.settings.get(CUSTOM_DND5E.ID, CUSTOM_DND5E.COUNTERS[this.actor?.type]) ?? {};
 
-      if (coreModule.api.Utils.isModuleActive(CUSTOM_DND5E.ID) && counters.length) {
+      if (coreModule.api.Utils.isModuleActive(CUSTOM_DND5E.ID) && Object.keys(counters).length) {
         counters = Object.entries(counters)
           .filter(([_, value]) => value.visible)
           .map(([key, value]) => {
@@ -398,6 +374,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
               active = (value) ? " active" : "";
               cssClass = `toggle${active}`;
               break;
+            case "fraction":
+              active = (value.value > 0) ? " active" : "";
+              cssClass = `toggle${active}`;
+              info1 = { text: `${value.value ?? 0}/${value.max ?? 0}` };
+              break;
             case "number":
               active = (value > 0) ? " active" : "";
               cssClass = `toggle${active}`;
@@ -411,7 +392,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
         return {
           id: counter.key,
-          name: counter.name,
+          name: counter.label,
           listName: this.#getListName(actionType, counter.name),
           encodedValue: [actionType, (counter.system) ? counter.key : encodeURIComponent(`${counter.key}>${counter.type}`)].join(this.delimiter),
           cssClass,
@@ -420,11 +401,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         };
       });
 
-      // Create group data
-      const groupData = { id: "counters" };
-
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "counters" });
     }
 
     /**
@@ -434,37 +412,29 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     async #buildEffects() {
       const actionType = "effect";
 
-      // Get effects
-      const effects = new Map();
-      for (const effect of this.actor.allApplicableEffects()) { effects.set(effect.id, effect); }
-
-      // Exit if no effects exist
+      // Get effects and exit if none exist
+      const effects = new Map(this.actor.allApplicableEffects().map(effect => [effect.id, effect]));
       if (effects.size === 0) return;
 
       // Map passive and temporary effects to new maps
       const passiveEffects = new Map();
       const temporaryEffects = new Map();
-      const conditionIds = Object.keys(CONFIG.DND5E.conditionTypes).map(key => { return dnd5e.utils.staticID(`dnd5e${key}`); });
+      const conditionIds = new Set(Object.keys(CONFIG.DND5E.conditionTypes).map(key => dnd5e.utils.staticID(`dnd5e${key}`)));
 
       // Iterate effects and add to a map based on the isTemporary value
       for (const [effectId, effect] of effects.entries()) {
         if (effect.isSuppressed) continue;
         if (effect.parent?.system?.identified === false && !game.user.isGM) continue;
-        if (conditionIds.includes(effect.id)) continue;
+        if (conditionIds.has(effect.id)) continue;
 
-        const isTemporary = effect.isTemporary;
-        if (isTemporary) {
-          temporaryEffects.set(effectId, effect);
-        } else {
-          passiveEffects.set(effectId, effect);
-        }
+        if (effect.isTemporary) { temporaryEffects.set(effectId, effect); }
+        else { passiveEffects.set(effectId, effect); }
       }
 
+      // Build passive and temporary effects
       await Promise.all([
-        // Build passive effects
-        this.buildActions({ groupData: { id: "passive-effects", type: "system" }, actionData: passiveEffects, actionType }),
-        // Build temporary effects
-        this.buildActions({ groupData: { id: "temporary-effects", type: "system" }, actionData: temporaryEffects, actionType })
+        this.buildActions({ groupData: { id: "passive-effects" }, actionData: passiveEffects, actionType }),
+        this.buildActions({ groupData: { id: "temporary-effects" }, actionData: temporaryEffects, actionType })
       ]);
     }
 
@@ -474,28 +444,23 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      */
     #buildExhaustion() {
       // Exit if every actor is not the character type
-      if (this.actors.length === 0) return;
       if (!this.actors.every(actor => actor.type === "character")) return;
 
+      // Get actions
       const actionType = "exhaustion";
       const active = this.actor.system.attributes.exhaustion > 0 ? " active" : "";
-
-      // Get actions
       const actions = [{
-        cssClass: `toggle${active}`,
         id: "exhaustion",
         name: game.i18n.localize("DND5E.Exhaustion"),
         encodedValue: [actionType, "exhaustion"].join(this.delimiter),
+        cssClass: `toggle${active}`,
         img: coreModule.api.Utils.getImage("modules/token-action-hud-dnd5e/icons/exhaustion.svg"),
         info1: { text: this.actor.system.attributes.exhaustion },
         listName: this.#getListName(actionType, name)
       }];
 
-      // Create group data
-      const groupData = { id: "exhaustion" };
-
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "exhaustion" });
     }
 
     /**
@@ -503,99 +468,78 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      */
     async #buildFeatures() {
-      const actionType = "feature";
-
-      // Get feats
-      const feats = new Map();
-      for (const [key, value] of this.items) {
-        const type = value.type;
-        if (type === "feat") feats.set(key, value);
-      }
-
-      // Early exit if no feats exist
+      // Filter feats from items and exit if none exist
+      const feats = new Map([...this.items].filter(([, value]) => value.type === "feat"));
       if (feats.size === 0) return;
 
       // Map active and passive features to new maps
-      const featuresMap = new Map();
+      const featuresMap = new Map([
+        ["activeFeatures", new Map()],
+        ["passiveFeatures", new Map()]
+      ]);
 
-      const featureTypes = [
-        { type: "background", groupId: "background-features" },
-        { type: "class", groupId: "class-features" },
-        { type: "monster", groupId: "monster-features" },
-        { type: "race", groupId: "race-features" },
-        { type: "feats", groupId: "feats" }
-      ];
+      const featureType = {
+        background: "backgroundFeatures",
+        class: "classFeatures",
+        monster: "monsterFeatures",
+        race: "raceFeatures",
+        feats: "feats"
+      };
 
-      const classFeatureTypes = [
-        { type: "artificerInfusion", groupId: "artificer-infusions" },
-        { type: "channelDivinity", groupId: "channel-divinity" },
-        { type: "defensiveTactic", groupId: "defensive-tactics" },
-        { type: "eldritchInvocation", groupId: "eldritch-invocations" },
-        { type: "elementalDiscipline", groupId: "elemental-disciplines" },
-        { type: "fightingStyle", groupId: "fighting-styles" },
-        { type: "huntersPrey", groupId: "hunters-prey" },
-        { type: "ki", groupId: "ki-abilities" },
-        { type: "maneuver", groupId: "maneuvers" },
-        { type: "metamagic", groupId: "metamagic-options" },
-        { type: "multiattack", groupId: "multiattacks" },
-        { type: "pact", groupId: "pact-boons" },
-        { type: "psionicPower", groupId: "psionic-powers" },
-        { type: "rune", groupId: "runes" },
-        { type: "superiorHuntersDefense", groupId: "superior-hunters-defense" }
-      ];
+      const classFeatureType = {
+        artificerInfusion: "artificerInfusions",
+        channelDivinity: "channelDivinity",
+        defensiveTactic: "defensiveTactics",
+        eldritchInvocation: "eldritchInvocations",
+        elementalDiscipline: "elementalDisciplines",
+        fightingStyle: "fightingStyles",
+        huntersPrey: "huntersPrey",
+        ki: "kiAbilities",
+        maneuver: "maneuvers",
+        metamagic: "metamagicOptions",
+        multiattack: "multiattacks",
+        pact: "pactBoons",
+        psionicPower: "psionicPowers",
+        rune: "runes",
+        superiorHuntersDefense: "superiorHuntersDefense"
+      };
 
       for (const [key, value] of feats) {
         const activationType = value.system.activities.contents[0]?.type;
         const type = value.system.type.value;
         const subType = value.system.type?.subtype;
-        if (activationType) {
-          if (!featuresMap.has("active-features")) featuresMap.set("active-features", new Map());
-          featuresMap.get("active-features").set(key, value);
+
+        if (activationType) { featuresMap.get("activeFeatures").set(key, value); }
+        else { featuresMap.get("passiveFeatures").set(key, value); }
+
+        // Map feature types
+        if (featureType[type]) {
+          if (!featuresMap.has(featureType[type])) featuresMap.set(featureType[type], new Map());
+          featuresMap.get(featureType[type]).set(key, value);
         }
-        if (!activationType || activationType === "") {
-          if (!featuresMap.has("passive-features")) featuresMap.set("passive-features", new Map());
-          featuresMap.get("passive-features").set(key, value);
-        }
-        for (const featureType of featureTypes) {
-          const groupId = featureType.groupId;
-          if (featureType.type === type) {
-            if (!featuresMap.has(groupId)) featuresMap.set(groupId, new Map());
-            featuresMap.get(groupId).set(key, value);
-          }
-        }
-        for (const featureType of classFeatureTypes) {
-          const groupId = featureType.groupId;
-          if (subType && featureType.type === subType) {
-            if (!featuresMap.has(groupId)) featuresMap.set(groupId, new Map());
-            featuresMap.get(groupId).set(key, value);
-          }
+
+        // Map class feature subtypes
+        if (classFeatureType[subType]) {
+          if (!featuresMap.has(classFeatureType[subType])) featuresMap.set(classFeatureType[subType], new Map());
+          featuresMap.get(classFeatureType[subType]).set(key, value);
         }
       }
 
-      // Create group name mappings
-      const groupNameMappings = {
-        "active-features": game.i18n.localize("tokenActionHud.dnd5e.activeFeatures"),
-        "passive-features": game.i18n.localize("tokenActionHud.dnd5e.passiveFeatures")
-      };
-
       // Loop through inventory groups ids
-      for (const groupId of FEATURE_GROUP_IDS) {
-        if (!featuresMap.has(groupId)) continue;
+      for (const id of FEATURE_GROUP_IDS) {
+        const actionData = featuresMap.get(id);
+        if (!actionData || actionData.size === 0) continue;
 
         // Create group data
         const groupData = {
-          id: groupId,
-          name: groupNameMappings[groupId] ?? ""
+          id: GROUP[id].id,
+          name: game.i18n.localize(GROUP[id].name) ?? ""
         };
 
-        const actionData = featuresMap.get(groupId);
-        const data = { groupData, actionData, actionType };
-
-        // Build actions
-        await this.buildActions(data);
-
-        // Build activations
-        if (groupNameMappings[groupId]) await this.buildActivations(data);
+        // Build actions and activations
+        const actionType = "feature";
+        await this.buildActions({ groupData, actionData, actionType });
+        await this.buildActivations({ groupData, actionData, actionType });
       }
     }
 
@@ -607,85 +551,52 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Exit early if no items exist
       if (this.items.size === 0) return;
 
-      const inventoryMap = new Map();
+      // Initialize inventory map categories
+      const inventoryMap = new Map([
+        ["equipped", new Map()],
+        ["unequipped", new Map()],
+        ["consumables", new Map()],
+        ["containers", new Map()],
+        ["equipment", new Map()],
+        ["loot", new Map()],
+        ["tools", new Map()],
+        ["weapons", new Map()]
+      ]);
 
       for (const [key, value] of this.items) {
-        // Set variables
-        const equipped = value.system.equipped;
-        const hasQuantity = value.system?.quantity > 0;
-        const isActiveItem = this.#isActiveItem(value);
-        const isUsableItem = this.#isUsableItem(value);
-        const isEquippedItem = this.#isEquippedItem(value);
-        const type = value.type;
-
         // Set items into maps
-        if (hasQuantity && isActiveItem) {
-          if (equipped) {
-            if (!inventoryMap.has("equipped")) inventoryMap.set("equipped", new Map());
-            inventoryMap.get("equipped").set(key, value);
-          }
-          if (!equipped) {
-            if (!inventoryMap.has("unequipped")) inventoryMap.set("unequipped", new Map());
-            inventoryMap.get("unequipped").set(key, value);
-          }
-          if (isUsableItem && type === "consumable") {
-            if (!inventoryMap.has("consumables")) inventoryMap.set("consumables", new Map());
-            inventoryMap.get("consumables").set(key, value);
-          }
-          if (isEquippedItem) {
-            if (type === "container") {
-              if (!inventoryMap.has("containers")) inventoryMap.set("containers", new Map());
-              inventoryMap.get("containers").set(key, value);
-            }
-            if (type === "equipment") {
-              if (!inventoryMap.has("equipment")) inventoryMap.set("equipment", new Map());
-              inventoryMap.get("equipment").set(key, value);
-            }
-            if (type === "loot") {
-              if (!inventoryMap.has("loot")) inventoryMap.set("loot", new Map());
-              inventoryMap.get("loot").set(key, value);
-            }
-            if (type === "tool") {
-              if (!inventoryMap.has("tools")) inventoryMap.set("tools", new Map());
-              inventoryMap.get("tools").set(key, value);
-            }
-            if (type === "weapon") {
-              if (!inventoryMap.has("weapons")) inventoryMap.set("weapons", new Map());
-              inventoryMap.get("weapons").set(key, value);
+        if (value.system?.quantity > 0 && this.#isActiveItem(value)) {
+          if (value.system.equipped) { inventoryMap.get("equipped").set(key, value); }
+          else { inventoryMap.get("unequipped").set(key, value); }
+
+          if (this.#isUsableItem(value) && value.type === "consumable") inventoryMap.get("consumables").set(key, value);
+          if (this.#isEquippedItem(value)) {
+            switch (value.type) {
+              case "container": inventoryMap.get("containers").set(key, value); break;
+              case "equipment": inventoryMap.get("equipment").set(key, value); break;
+              case "loot": inventoryMap.get("loot").set(key, value); break;
+              case "tool": inventoryMap.get("tools").set(key, value); break;
+              case "weapon": inventoryMap.get("weapons").set(key, value); break;
             }
           }
         }
       }
 
-      // Create group name mappings
-      const groupNameMappings = {
-        equipped: "DND5E.Equipped",
-        unequipped: "DND5E.Unequipped",
-        consumables: "TYPES.Item.consumablePl",
-        containers: "TYPES.Item.containerPl",
-        equipment: "TYPES.Item.equipmentPl",
-        loot: "TYPES.Item.lootPl",
-        tools: "TYPES.Item.toolPl",
-        weapons: "TYPES.Item.weaponPl"
-      };
-
       // Loop through inventory subcateogry ids
       for (const groupId of this.inventorygroupIds) {
-        if (!inventoryMap.has(groupId)) continue;
+        const actionData = inventoryMap.get(groupId);
+        if (!actionData || actionData.size === 0) continue;
 
         // Create group data
         const groupData = {
           id: groupId,
-          name: game.i18n.localize(groupNameMappings[groupId])
+          name: game.i18n.localize(GROUP[groupId].name)
         };
 
-        const actionData = inventoryMap.get(groupId);
         const data = { groupData, actionData };
 
-        // Build actions
+        // Build actions and activations
         await this.buildActions(data);
-
-        // Build activations
         await this.buildActivations(data);
       }
     }
@@ -696,36 +607,23 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      */
     #buildRests() {
       // Exit if every actor is not the character type
-      if (this.actors.length === 0) return;
-      if (!this.actors.every(actor => actor.type === "character")) return;
-
-      const actionType = "utility";
-
-      // Set rest types
-      const restTypes = {
-        shortRest: { name: game.i18n.localize("DND5E.ShortRest") },
-        longRest: { name: game.i18n.localize("DND5E.LongRest") }
-      };
+      if (this.actors.length === 0 || !this.actors.every(actor => actor.type === "character")) return;
 
       // Get actions
-      const actions = Object.entries(restTypes)
-        .map(restType => {
-          const id = restType[0];
-          const name = restType[1].name;
-          const encodedValue = [actionType, id].join(this.delimiter);
-          return {
-            id,
-            name,
-            encodedValue,
-            listName: this.#getListName(actionType, name)
-          };
-        });
-
-      // Create group data
-      const groupData = { id: "rests" };
+      const actionType = "utility";
+      const restTypes = { shortRest: "DND5E.ShortRest", longRest: "DND5E.LongRest" };
+      const actions = Object.entries(restTypes).map(([id, name]) => {
+        name = game.i18n.localize(name);
+        return {
+          id,
+          name,
+          encodedValue: [actionType, id].join(this.delimiter),
+          listName: this.#getListName(actionType, name)
+        };
+      });
 
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "rests" });
     }
 
     /**
@@ -733,115 +631,91 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      */
     #buildSkills() {
-      const actionType = "skill";
-
-      // Get skills
+      // Get skills and exit if none exist
       const skills = this.actor?.system.skills || CONFIG.DND5E.skills;
-
-      // Exit if there are no skills
       if (skills.length === 0) return;
 
       // Get actions
-      const actions = Object.entries(skills)
-        .map(([id, skill]) => {
-          try {
-            const name = CONFIG.DND5E.skills[id].label;
-            return {
-              id,
-              name: this.abbreviateSkills ? coreModule.api.Utils.capitalize(id) : name,
-              encodedValue: [actionType, id].join(this.delimiter),
-              icon1: this.#getProficiencyIcon(skill.value),
-              info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(skill.total) } : "",
-              listName: this.#getListName(actionType, name)
-            };
-          } catch(error) {
-            coreModule.api.Logger.error(skill);
-            return null;
-          }
-        })
-        .filter(skill => !!skill);
-
-      // Create group data
-      const groupData = { id: "skills" };
+      const actionType = "skill";
+      const actions = Object.entries(skills).map(([id, skill]) => {
+        try {
+          const name = CONFIG.DND5E.skills[id].label;
+          return {
+            id,
+            name: this.abbreviateSkills ? coreModule.api.Utils.capitalize(id) : name,
+            encodedValue: [actionType, id].join(this.delimiter),
+            icon1: this.#getProficiencyIcon(skill.value),
+            info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(skill.total) } : "",
+            listName: this.#getListName(actionType, name)
+          };
+        } catch(error) {
+          coreModule.api.Logger.error(skill);
+          return null;
+        }
+      }).filter(skill => !!skill);
 
       // Add actions to HUD
-      this.addActions(actions, groupData);
+      this.addActions(actions, { id: "skills" });
     }
 
     /**
      * Build spells
      */
     async #buildSpells() {
-      const actionType = "spell";
+      // Filter items for spells and exit if none exist
+      const spells = new Map([...this.items].filter(([, value]) => value.type === "spell"));
+      if (spells.size === 0) return;
 
-      const spellsMap = new Map();
+      // Initialize spells map categories
+      const spellsMap = new Map([
+        ["atWillSpells", new Map()],
+        ["innateSpells", new Map()],
+        ["pactSpells", new Map()],
+        ["cantrips", new Map()],
+        ["_1stLevelSpells", new Map()],
+        ["_2ndLevelSpells", new Map()],
+        ["_3rdLevelSpells", new Map()],
+        ["_4thLevelSpells", new Map()],
+        ["_5thLevelSpells", new Map()],
+        ["_6thLevelSpells", new Map()],
+        ["_7thLevelSpells", new Map()],
+        ["_8thLevelSpells", new Map()],
+        ["_9thLevelSpells", new Map()]
+      ]);
 
       // Loop through items
-      for (const [key, value] of this.items) {
-        const type = value.type;
-        if (type === "spell") {
-          const isUsableItem = this.#isUsableItem(value);
-          const isUsableSpell = this.#isUsableSpell(value);
-          if (isUsableItem && isUsableSpell) {
-            const preparationMode = value.system.preparation.mode;
-            switch (preparationMode) {
-              case "atwill":
-                if (!spellsMap.has("at-will-spells")) spellsMap.set("at-will-spells", new Map());
-                spellsMap.get("at-will-spells").set(key, value);
-                break;
-              case "innate":
-                if (!spellsMap.has("innate-spells")) spellsMap.set("innate-spells", new Map());
-                spellsMap.get("innate-spells").set(key, value);
-                break;
-              case "pact":
-                if (!spellsMap.has("pact-spells")) spellsMap.set("pact-spells", new Map());
-                spellsMap.get("pact-spells").set(key, value);
-                break;
-              default:
-              { const level = value.system.level;
-                switch (level) {
-                  case 0:
-                    if (!spellsMap.has("cantrips")) spellsMap.set("cantrips", new Map());
-                    spellsMap.get("cantrips").set(key, value);
-                    break;
-                  case 1:
-                    if (!spellsMap.has("1st-level-spells")) spellsMap.set("1st-level-spells", new Map());
-                    spellsMap.get("1st-level-spells").set(key, value);
-                    break;
-                  case 2:
-                    if (!spellsMap.has("2nd-level-spells")) spellsMap.set("2nd-level-spells", new Map());
-                    spellsMap.get("2nd-level-spells").set(key, value);
-                    break;
-                  case 3:
-                    if (!spellsMap.has("3rd-level-spells")) spellsMap.set("3rd-level-spells", new Map());
-                    spellsMap.get("3rd-level-spells").set(key, value);
-                    break;
-                  case 4:
-                    if (!spellsMap.has("4th-level-spells")) spellsMap.set("4th-level-spells", new Map());
-                    spellsMap.get("4th-level-spells").set(key, value);
-                    break;
-                  case 5:
-                    if (!spellsMap.has("5th-level-spells")) spellsMap.set("5th-level-spells", new Map());
-                    spellsMap.get("5th-level-spells").set(key, value);
-                    break;
-                  case 6:
-                    if (!spellsMap.has("6th-level-spells")) spellsMap.set("6th-level-spells", new Map());
-                    spellsMap.get("6th-level-spells").set(key, value);
-                    break;
-                  case 7:
-                    if (!spellsMap.has("7th-level-spells")) spellsMap.set("7th-level-spells", new Map());
-                    spellsMap.get("7th-level-spells").set(key, value);
-                    break;
-                  case 8:
-                    if (!spellsMap.has("8th-level-spells")) spellsMap.set("8th-level-spells", new Map());
-                    spellsMap.get("8th-level-spells").set(key, value);
-                    break;
-                  case 9:
-                    if (!spellsMap.has("9th-level-spells")) spellsMap.set("9th-level-spells", new Map());
-                    spellsMap.get("9th-level-spells").set(key, value);
-                    break;
-                }
-              }
+      for (const [key, value] of spells) {
+        if (!this.#isUsableItem(value) || !this.#isUsableSpell(value)) continue;
+
+        switch (value.system.preparation.mode) {
+          case "atwill":
+            spellsMap.get("atWillSpells").set(key, value); break;
+          case "innate":
+            spellsMap.get("innateSpells").set(key, value); break;
+          case "pact":
+            spellsMap.get("pactSpells").set(key, value); break;
+          default: {
+            switch (value.system.level) {
+              case 0:
+                spellsMap.get("cantrips").set(key, value); break;
+              case 1:
+                spellsMap.get("_1stLevelSpells").set(key, value); break;
+              case 2:
+                spellsMap.get("_2ndLevelSpells").set(key, value); break;
+              case 3:
+                spellsMap.get("_3rdLevelSpells").set(key, value); break;
+              case 4:
+                spellsMap.get("_4thLevelSpells").set(key, value); break;
+              case 5:
+                spellsMap.get("_5thLevelSpells").set(key, value); break;
+              case 6:
+                spellsMap.get("_6thLevelSpells").set(key, value); break;
+              case 7:
+                spellsMap.get("_7thLevelSpells").set(key, value); break;
+              case 8:
+                spellsMap.get("_8thLevelSpells").set(key, value); break;
+              case 9:
+                spellsMap.get("_9thLevelSpells").set(key, value); break;
             }
           }
         }
@@ -851,88 +725,63 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const systemSpells = Object.entries(this.actor.system.spells).reverse();
 
       // Set spell slot availability
-      let pactSlot = null;
-      const spellSlots = [];
+      const spellSlotsMap = new Map();
       let spellSlotAvailable = this.showUnchargedItems;
       let pactSlotAvailable = this.showUnchargedItems;
+      let pactSlot = null;
+
       for (const [key, value] of systemSpells) {
         const hasValue = value.value > 0;
         const hasMax = value.max > 0;
         const hasLevel = value.level > 0;
+
         if (key === "pact") {
-          if (!pactSlotAvailable && hasValue && hasMax && hasLevel) pactSlotAvailable = true;
-          if (!hasLevel) pactSlotAvailable = false;
-          value.slotAvailable = pactSlotAvailable;
+          pactSlotAvailable = pactSlotAvailable || (hasValue && hasMax && hasLevel);
+          value.slotAvailable = pactSlotAvailable && hasLevel;
           pactSlot = [key, value];
-        }
-        if (key.startsWith("spell") && key !== "spell0") {
-          if (!spellSlotAvailable && hasValue && hasMax) spellSlotAvailable = true;
+        } else if (key.startsWith("spell") && key !== "spell0") {
+          spellSlotAvailable = spellSlotAvailable || (hasValue && hasMax);
           value.slotAvailable = spellSlotAvailable;
-          spellSlots.push([key, value]);
+          spellSlotsMap.set(key, value);
         } else if (hasValue) {
           value.slotsAvailable = true;
-          spellSlots.push(key, value);
+          spellSlotsMap.set(key, value);
         }
       }
 
       // Set equivalent spell slot where pact slot is available
       if (pactSlot[1].slotAvailable) {
-        const pactSpellEquivalent = spellSlots.findIndex(spell => spell[0] === `spell${pactSlot[1].level}`);
-        spellSlots[pactSpellEquivalent][1].slotsAvailable = true;
+        const spellSlot = spellSlotsMap.get(f`spell${pactSlot[1].level}`);
+        spellSlot.slotsAvailable = true;
       }
 
-      const groupMappings = {
-        "1st-level-spells": { spellMode: 1, name: game.i18n.localize("tokenActionHud.dnd5e.1stLevelSpells") },
-        "2nd-level-spells": { spellMode: 2, name: game.i18n.localize("tokenActionHud.dnd5e.2ndLevelSpells") },
-        "3rd-level-spells": { spellMode: 3, name: game.i18n.localize("tokenActionHud.dnd5e.3rdLevelSpells") },
-        "4th-level-spells": { spellMode: 4, name: game.i18n.localize("tokenActionHud.dnd5e.4thLevelSpells") },
-        "5th-level-spells": { spellMode: 5, name: game.i18n.localize("tokenActionHud.dnd5e.5thLevelSpells") },
-        "6th-level-spells": { spellMode: 6, name: game.i18n.localize("tokenActionHud.dnd5e.6thLevelSpells") },
-        "7th-level-spells": { spellMode: 7, name: game.i18n.localize("tokenActionHud.dnd5e.7thLevelSpells") },
-        "8th-level-spells": { spellMode: 8, name: game.i18n.localize("tokenActionHud.dnd5e.8thLevelSpells") },
-        "9th-level-spells": { spellMode: 9, name: game.i18n.localize("tokenActionHud.dnd5e.9thLevelSpells") },
-        "at-will-spells": { spellMode: "atwill", name: game.i18n.localize("tokenActionHud.dnd5e.atWillSpells") },
-        cantrips: { spellMode: 0, name: game.i18n.localize("tokenActionHud.dnd5e.cantrips") },
-        "innate-spells": { spellMode: "innate", name: game.i18n.localize("tokenActionHud.dnd5e.innateSpells") },
-        "pact-spells": { spellMode: "pact", name: game.i18n.localize("tokenActionHud.dnd5e.pactSpells") }
-      };
+      const spellSlotModes = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, "pact"]);
 
-      const spellSlotModes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "pact"];
-
-      for (const groupId of SPELL_GROUP_IDS) {
-        const spellMode = groupMappings[groupId].spellMode;
-        const groupName = groupMappings[groupId].name;
-
+      for (const id of SPELL_GROUP_IDS) {
         // Skip if no spells exist
-        if (!spellsMap.has(groupId)) continue;
+        if (!spellsMap.has(id)) continue;
 
-        const levelInfo = (spellMode === "pact") ? pactSlot[1] : spellSlots.find(spellSlot => spellSlot[0] === `spell${spellMode}`)?.[1];
-        const slots = levelInfo?.value;
-        const max = levelInfo?.max;
-        const slotsAvailable = levelInfo?.slotAvailable;
+        const spellMode = GROUP[id].spellMode;
+        const levelInfo = (spellMode === "pact") ? pactSlot[1] : spellSlotsMap.get(`spell${spellMode}`);
+        const { value: slots = 0, max = 0, slotAvailable = false } = levelInfo || {};
 
         // Skip if spells require spell slots and none are available
-        if (!slotsAvailable && spellSlotModes.includes(spellMode)) continue;
+        if (!slotAvailable && spellSlotModes.has(spellMode)) continue;
 
-        // Create group data=
-        const groupInfo = {};
-        groupInfo.info1 = { class: "tah-spotlight", text: (max >= 0) ? `${slots}/${max}` : "" };
+        // Create group data
         const groupData = {
-          id: groupId,
-          name: groupName,
-          info: groupInfo
+          id: GROUP[id].id,
+          name: game.i18n.localize(GROUP[id].name),
+          info: { info1: { class: "tah-spotlight", text: (max > 0) ? `${slots}/${max}` : "" } }
         };
 
         // Add spell slot info to group
         this.addGroupInfo(groupData);
 
-        const actionData = spellsMap.get(groupId);
-        const data = { groupData, actionData, actionType };
+        const data = { groupData, actionData: spellsMap.get(id), actionType: "spell" };
 
-        // Build actions
+        // Build actions and activations
         await this.buildActions(data);
-
-        // Build activations
         await this.buildActivations(data);
       }
     }
@@ -1075,7 +924,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @returns {boolean}   Whether the item is usable
      */
     #isUsableItem(item) {
-      return this.showUnchargedItems || item.system.uses;
+      return this.showUnchargedItems || item.system.uses.value || !item.system.uses.max;
     }
 
     /**

@@ -1,3 +1,5 @@
+import { CUSTOM_DND5E } from './constants.js'
+
 export let RollHandler = null;
 
 Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
@@ -133,26 +135,38 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * * @param {string} actionId The action id
      */
     async #modifyCustomCounter(event, actor, actionId) {
-      if (!coreModule.api.Utils.isModuleActive("dnd5e-custom-counters")) return;
-
       const [id, type] = decodeURIComponent(actionId).split(">");
 
       const isRightClick = this.isRightClick(event);
       const isCtrl = this.isCtrl(event);
-      let value = actor.getFlag("dnd5e-custom-counters", id);
+      let value = actor.getFlag(CUSTOM_DND5E.ID, id);
+
+      const setFlag = async (actor, id, value) => {
+        await actor.setFlag(CUSTOM_DND5E.ID, id, value);
+      };
 
       switch (type) {
         case "checkbox":
-          await actor.setFlag("dnd5e-custom-counters", id, !value);
+          await setFlag(id, !value);
+          break;
+        case "fraction":
+          value.value = value?.value ?? 0;
+          if (isRightClick) {
+            if (value.value > 0) {
+              await setFlag(actor, `${id}.value`, value.value - 1);
+            }
+          } else if (value.max && value.value < value.max) {
+            await setFlag(actor, `${id}.value`, value.value + 1);
+          }
           break;
         case "number":
           value = value ?? 0;
           if (isRightClick) {
             if (value > 0) {
-              await actor.setFlag("dnd5e-custom-counters", id, value - 1);
+              await setFlag(actor, id, value - 1);
             }
           } else {
-            await actor.setFlag("dnd5e-custom-counters", id, value + 1);
+            await setFlag(actor, id, value + 1);
           }
           break;
         case "successFailure":
@@ -162,15 +176,15 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           if (isRightClick) {
             if (isCtrl) {
               if (value?.failure > 0) {
-                await actor.setFlag("dnd5e-custom-counters", `${id}.failure`, value.failure - 1);
+                await setFlag(actor, `${id}.failure`, value.failure - 1);
               }
             } else if (value?.success > 0) {
-              await actor.setFlag("dnd5e-custom-counters", `${id}.success`, value.success - 1);
+              await setFlag(actor, `${id}.success`, value.success - 1);
             }
           } else if (isCtrl) {
-            await actor.setFlag("dnd5e-custom-counters", `${id}.failure`, value.failure + 1);
+            await setFlag(actor, `${id}.failure`, value.failure + 1);
           } else {
-            await actor.setFlag("dnd5e-custom-counters", `${id}.success`, value.success + 1);
+            await setFlag(actor, `${id}.success`, value.success + 1);
           }
       }
     }
