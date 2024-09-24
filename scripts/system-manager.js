@@ -2,7 +2,6 @@
 import { ActionHandler } from "./action-handler.js";
 import { MagicItemActionHandlerExtender } from "./magic-items-extender.js";
 import { RollHandler as Core } from "./roll-handler.js";
-import { RollHandlerObsidian as Obsidian5e } from "./roll-handler-obsidian.js";
 import { DEFAULTS } from "./defaults.js";
 import * as systemSettings from "./settings.js";
 
@@ -13,7 +12,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /** @override */
     getActionHandler() {
       const actionHandler = new ActionHandler();
-      if (coreModule.api.Utils.isModuleActive("magic-items-2") || coreModule.api.Utils.isModuleActive("magicitems")) { actionHandler.addActionHandlerExtender(new MagicItemActionHandlerExtender(actionHandler)); }
+      if (coreModule.api.Utils.isModuleActive("magic-items-2")
+        || coreModule.api.Utils.isModuleActive("magicitems")) {
+        actionHandler.addActionHandlerExtender(new MagicItemActionHandlerExtender(actionHandler));
+      }
       return actionHandler;
     }
 
@@ -21,11 +23,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     getAvailableRollHandlers() {
       let coreTitle = "Core D&D5e";
 
-      if (coreModule.api.Utils.isModuleActive("midi-qol")) { coreTitle += ` [supports ${coreModule.api.Utils.getModuleTitle("midi-qol")}]`; }
+      if (coreModule.api.Utils.isModuleActive("midi-qol")) {
+        coreTitle += ` [supports ${coreModule.api.Utils.getModuleTitle("midi-qol")}]`;
+      }
 
       const choices = { core: coreTitle };
-      coreModule.api.SystemManager.addHandler(choices, "obsidian");
-
       return choices;
     }
 
@@ -33,9 +35,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     getRollHandler(rollHandlerId) {
       let rollHandler;
       switch (rollHandlerId) {
-        case "obsidian":
-          rollHandler = new Obsidian5e();
-          break;
         case "core":
         default:
           rollHandler = new Core();

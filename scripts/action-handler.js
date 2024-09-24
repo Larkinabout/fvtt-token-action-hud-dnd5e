@@ -1043,18 +1043,16 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {integer} consumeAmount
      * @returns {string}
      */
-    #getUsesData(item, consumeName, consumeAmount) {
+    #getUsesData(item) {
       const uses = item?.system?.uses;
-      if (uses?.per && (consumeName || uses?.prompt) && (uses.value > 0 || uses.max > 0)) {
-        const of = game.i18n.localize("DND5E.of");
-        const per = uses.per === "charges" ? "" : ` ${game.i18n.localize("DND5E.per")}`;
-        const period = CONFIG.DND5E.limitedUsePeriods[uses.per]?.label ?? uses.per;
-        const amount = consumeAmount !== undefined ? consumeAmount : uses.amount;
-        const text = `${amount > 1 ? `${amount} ${of} ` : ""}${uses.value ?? "0"}${uses.max > 0 ? `/${uses.max}` : ""}`;
-        const title = `${text}${per} ${period}${consumeName ? ` (${of} ${consumeName})` : ""}`;
-        return { text, title };
-      }
-      return {};
+      if (!(uses?.max > 0)) return {};
+      const per = uses.recovery[0]?.period === "charges" ? "" : ` ${game.i18n.localize("DND5E.per")} `;
+      const period = CONFIG.DND5E.limitedUsePeriods[uses.recovery[0]?.period]?.label ?? uses.recovery[0]?.period;
+      const perPeriod = (period) ? `${per}${period}` : ''
+      const remainingUses = uses.max - (uses.spent ?? 0);
+      const text = `${remainingUses}/${uses.max}`;
+      const title = `${text}${perPeriod}`;
+      return { text, title };
     }
 
     /**
@@ -1091,7 +1089,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
         // Return charges
         if (target && consumeType === "charges") {
-          return this.#getUsesData(target, target.name, consumeAmount);
+          return this.#getUsesData(target);
         }
 
         // Return quantity
