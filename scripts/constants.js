@@ -174,9 +174,10 @@ export const PREPARED_ICON = "fas fa-sun";
  * Proficiency level icons
  */
 export const PROFICIENCY_LEVEL_ICON = {
-  0.5: "fas fa-adjust",
-  1: "fas fa-check",
-  2: "fas fa-check-double"
+  0: "fa-regular fa-circle",
+  0.5: "fa-regular fa-circle-half-stroke",
+  1: "fa-solid fa-circle",
+  2: "fa-regular fa-circle-dot"
 };
 
 /**

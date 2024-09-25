@@ -77,3 +77,7 @@
     border-color: #9d0289;
     background-color: #9d0289;
   }
+
+  .tah-icon > i {
+    font-size: 10px;
+  }

@@ -161,8 +161,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             name: (this.abbreviateSkills) ? coreModule.api.Utils.capitalize(abilityId) : name,
             encodedValue: [actionType, abilityId].join(this.delimiter),
             icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
-            info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(mod) } : null,
-            info2: (this.actor && groupId === "abilities") ? { text: `(${coreModule.api.Utils.getModifier(ability?.save)})` } : null,
+            info1: (this.actor) ? {
+              text: coreModule.api.Utils.getModifier(mod),
+              title: `${game.i18n.localize("DND5E.ActionAbil")}: ${coreModule.api.Utils.getModifier(mod)}`
+            } : null,
+            info2: (this.actor && groupId === "abilities") ? {
+              text: `(${coreModule.api.Utils.getModifier(ability?.save)})`,
+              title: `${game.i18n.localize("DND5E.SavingThrow")}: ${coreModule.api.Utils.getModifier(ability?.save)}`
+            } : null,
             listName: this.#getListName(actionType, name)
           };
         });
@@ -882,7 +888,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         encodedValue: [actionType, id].join(this.delimiter),
         cssClass,
         img: coreModule.api.Utils.getImage(entity),
-        icon1: this.#getActivationTypeIcon(entity.system?.activities?.contents[0]?.type),
+        icon1: this.#getActivationTypeIcon(entity.system?.activities?.contents[0]?.activation.type),
         icon2: this.#getPreparedIcon(entity),
         icon3: this.#getConcentrationIcon(entity),
         info1: info?.info1,
@@ -1047,7 +1053,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (!(uses?.max > 0)) return {};
       const per = uses.recovery[0]?.period === "charges" ? "" : ` ${game.i18n.localize("DND5E.per")} `;
       const period = CONFIG.DND5E.limitedUsePeriods[uses.recovery[0]?.period]?.label ?? uses.recovery[0]?.period;
-      const perPeriod = (period) ? `${per}${period}` : ''
+      const perPeriod = (period) ? `${per}${period}` : "";
       const remainingUses = uses.max - (uses.spent ?? 0);
       const text = `${remainingUses}/${uses.max}`;
       const title = `${text}${perPeriod}`;
