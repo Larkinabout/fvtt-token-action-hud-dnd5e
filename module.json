@@ -86,27 +86,22 @@
     "systems": [
       {
         "id": "dnd5e",
-        "type": "system",
-        "compatibility": [
-          {
-            "minimum": "4.0.0",
-            "maximum": "4",
-            "verified": "4.0.2"
-          }
-        ]
+        "compatibility": {
+          "minimum": "4.0.0",
+          "maximum": "4",
+          "verified": "4.0.2"
+        }
       }
     ],
     "requires": [
       {
         "id": "token-action-hud-core",
         "type": "module",
-        "compatibility": [
-          {
-            "minimum": "1.5.4",
-            "maximum": "1.5",
-            "verified": "1.5.7"
-          }
-        ]
+        "compatibility": {
+          "minimum": "1.5.4",
+          "maximum": "1.5",
+          "verified": "1.5.7"
+        }
       }
     ],
     "optional": [],

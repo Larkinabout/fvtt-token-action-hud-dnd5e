@@ -304,7 +304,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      */
     async #buildCounters() {
-      if (!CUSTOM_DND5E.COUNTERS[this.actor?.type]) return;
+      if (!coreModule.api.Utils.isModuleActive(CUSTOM_DND5E.ID)
+        || !CUSTOM_DND5E.COUNTERS[this.actor?.type]) return;
 
       const actionType = "counter";
 
@@ -1039,8 +1040,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Get uses
      * @private
      * @param {object} item
-     * @param {string} consumeName
-     * @param {integer} consumeAmount
      * @returns {string}
      */
     #getUsesData(item) {
@@ -1059,7 +1058,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Get consume
      * @private
      * @param {object} item
-     * @param {object} actor
      * @returns {string}
      */
     #getConsumeData(item) {
