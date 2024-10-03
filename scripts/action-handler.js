@@ -758,7 +758,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Set equivalent spell slot where pact slot is available
       if (pactSlot[1].slotAvailable) {
-        const spellSlot = spellSlotsMap.get(f`spell${pactSlot[1].level}`);
+        const spellSlot = spellSlotsMap.get(`spell${pactSlot[1].level}`);
         spellSlot.slotsAvailable = true;
       }
 
