@@ -158,7 +158,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           const mod = (groupId === "saves") ? ability?.save : ability?.mod;
           return {
             id: `${actionType}-${abilityId}`,
-            name: (this.abbreviateSkills) ? coreModule.api.Utils.capitalize(abilityId) : name,
+            name: (this.abbreviateSkills) ? Utils.capitalize(abilityId) : name,
             encodedValue: [actionType, abilityId].join(this.delimiter),
             icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
             info1: (this.actor) ? {
@@ -649,7 +649,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           const name = CONFIG.DND5E.skills[id].label;
           return {
             id,
-            name: this.abbreviateSkills ? coreModule.api.Utils.capitalize(id) : name,
+            name: this.abbreviateSkills ? Utils.capitalize(id) : name,
             encodedValue: [actionType, id].join(this.delimiter),
             icon1: this.#getProficiencyIcon(skill.value),
             info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(skill.total) } : "",
