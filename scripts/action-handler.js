@@ -931,7 +931,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @returns {boolean}   Whether the item is usable
      */
     #isUsableItem(item) {
-      return this.showUnchargedItems || !!item.system.uses?.value;
+      return this.showUnchargedItems || !!item.system.uses?.value || !item.system.uses?.max;
     }
 
     /**
