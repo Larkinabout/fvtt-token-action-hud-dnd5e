@@ -364,15 +364,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {string} actionId The action id
      */
     async toggleEffect(event, actor, actionId) {
-      const effects = actor.effects.entries ? actor.effects.entries : actor.effects;
-      const actorEffect = effects.find(effect => effect.id === actionId);
-
-      const effect = actorEffect ?? actor.allApplicableEffects().find(effect => effect.id === actionId);
+      const effect = actor.allApplicableEffects().find(effect => effect.id === actionId);
       if (!effect) return;
 
       const isRightClick = this.isRightClick(event);
 
-      if (isRightClick && actorEffect) {
+      if (isRightClick && !effect.transfer) {
         await effect.delete();
       } else {
         await effect.update({ disabled: !effect.disabled });
