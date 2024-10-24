@@ -8,10 +8,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Handle action click
      * @override
      * @param {object} event
-     * @param {string} encodedValue
      */
-    async handleActionClick(event, encodedValue) {
-      const [actionType, actionId] = encodedValue.split("|");
+    async handleActionClick(event) {
+      const { actionType, actionId } = this.action.system;
 
       if (!this.actor) {
         for (const token of coreModule.api.Utils.getControlledTokens()) {
@@ -42,11 +41,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           this.rollAbilitySave(event, actor, actionId); break;
         case "condition":
           if (!token) return;
-          await this.toggleCondition(event, actor, token, actionId); break;
+          await this.toggleCondition(actor, token, actionId); break;
         case "counter":
-          await this.modifyCounter(event, actor, actionId); break;
+          await this.modifyCounter(event, actor); break;
         case "effect":
-          await this.toggleEffect(event, actor, actionId); break;
+          await this.toggleEffect(actor, actionId); break;
         case "exhaustion":
           await this.modifyExhaustion(event, actor); break;
         case "feature":
@@ -72,31 +71,28 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      * @param {object} event The event
      * @param {object} actor The actor
-     * @param {string} actionId The action id
      */
-    async modifyCounter(event, actor, actionId) {
-      switch (actionId) {
+    async modifyCounter(event, actor) {
+      switch (this.action?.system?.counterKey) {
         case "death-saves":
           this.rollDeathSave(event, actor); break;
         case "exhaustion":
-          await this.modifyExhaustion(event, actor); break;
+          await this.modifyExhaustion(actor); break;
         case "inspiration":
           await this.modifyInspiration(actor); break;
         default:
-          await this.modifyCustomCounter(event, actor, actionId); break;
+          await this.modifyCustomCounter(actor); break;
       }
     }
 
     /**
      * Modify Exhaustion
      * @private
-     * @param {object} event The event
      * @param {object} actor The actor
      */
-    async modifyExhaustion(event, actor) {
-      const isRightClick = this.isRightClick(event);
+    async modifyExhaustion(actor) {
       const currentExhaustion = actor.system.attributes.exhaustion;
-      const newExhaustion = currentExhaustion + (isRightClick ? -1 : 1);
+      const newExhaustion = currentExhaustion + (this.isRightClick ? -1 : 1);
       if (newExhaustion >= 0 && newExhaustion !== currentExhaustion) {
         actor.update({ "system.attributes.exhaustion": newExhaustion });
       }
@@ -115,16 +111,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Modify Custom Counter
      * @private
-     * @param {object} event The event
      * @param {object} actor The actor
-     * @param {string} actionId The action id
      */
-    async modifyCustomCounter(event, actor, actionId) {
-      const [id, type] = decodeURIComponent(actionId).split(">");
-      const isRightClick = this.isRightClick(event);
-      const isCtrl = this.isCtrl(event);
+    async modifyCustomCounter(actor) {
+      const { counterKey, counterType } = this.action.system;
 
-      let value = actor.getFlag(CUSTOM_DND5E.ID, id) || {};
+      let value = actor.getFlag(CUSTOM_DND5E.ID, counterKey) || {};
 
       const setFlag = async (key, currentValue, newValue) => {
         if (newValue !== currentValue) {
@@ -133,17 +125,17 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       };
 
       const adjustValue = (key, currentValue = 0, increment = 1) => {
-        const newValue = isRightClick ? Math.max(0, currentValue - increment) : currentValue + increment;
+        const newValue = this.isRightClick ? Math.max(0, currentValue - increment) : currentValue + increment;
         setFlag(key, currentValue, newValue);
       };
 
-      switch (type) {
+      switch (counterType) {
         case "checkbox":
           await setFlag(id, !value);
           break;
 
         case "fraction":
-          if (isRightClick || (value.max && value.value < value.max) || !value.max) {
+          if (this.isRightClick || (value.max && value.value < value.max) || !value.max) {
             adjustValue(`${id}.value`, value.value);
           }
           break;
@@ -155,7 +147,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         case "successFailure":
           value.success = value?.success ?? 0;
           value.failure = value?.failure ?? 0;
-          if (isCtrl) {
+          if (this.isCtrl) {
             adjustValue(`${id}.failure`, value.failure);
           } else {
             adjustValue(`${id}.success`, value.success);
@@ -213,16 +205,15 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Roll Magic Item
      * @private
      * @param {object} actor    The actor
-     * @param {string} actionId The action id
      */
-    async rollMagicItem(actor, actionId) {
-      const [itemId, magicEffectId] = actionId.split(">");
+    async rollMagicItem(actor) {
+      const { itemId, effectId } = this.action.system;
 
       const magicItemActor = await MagicItems.actor(actor.id);
       if (!magicItemActor) return;
 
       // Magicitems module 3.0.0 does not support Item5e#use
-      magicItemActor.roll(itemId, magicEffectId);
+      magicItemActor.roll(itemId, effectId);
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 
@@ -307,22 +298,20 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Toggle Condition
      * @private
-     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {object} token    The token
      * @param {string} actionId The action id
      */
-    async toggleCondition(event, actor, token, actionId) {
+    async toggleCondition(actor, token, actionId) {
       if (!token) return;
 
-      const isRightClick = this.isRightClick(event);
       const statusEffect = CONFIG.statusEffects.find(statusEffect => statusEffect.id === actionId);
       const isConvenient = statusEffect?.flags?.["dfreds-convenient-effects"]?.isConvenient
         ?? actionId.startsWith("Convenient Effect");
 
       if (game.dfreds && isConvenient) {
         const effectName = statusEffect.name ?? statusEffect.label;
-        await game.dfreds.effectInterface.toggleEffect(effectName, { overlay: !!isRightClick });
+        await game.dfreds.effectInterface.toggleEffect(effectName, { overlay: !!this.isRightClick });
       } else {
         const condition = this.#findCondition(actionId);
         if (!condition) return;
@@ -330,7 +319,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         const effect = this.#findEffect(actor, actionId);
         if (effect?.disabled) { await effect.delete(); }
 
-        await actor.toggleStatusEffect(condition.id, { overlay: !!isRightClick });
+        await actor.toggleStatusEffect(condition.id, { overlay: !!this.isRightClick });
       }
 
       Hooks.callAll("forceUpdateTokenActionHud");
@@ -359,17 +348,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Toggle Effect
      * @private
-     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    async toggleEffect(event, actor, actionId) {
+    async toggleEffect(actor, actionId) {
       const effect = actor.allApplicableEffects().find(effect => effect.id === actionId);
       if (!effect) return;
 
-      const isRightClick = this.isRightClick(event);
-
-      if (isRightClick && !effect.transfer) {
+      if (this.isRightClick && !effect.transfer) {
         await effect.delete();
       } else {
         await effect.update({ disabled: !effect.disabled });
@@ -382,25 +368,19 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Handle action hover
      * @override
      * @param {object} event
-     * @param {string} encodedValue
      */
-    async handleActionHover(event, encodedValue) {
+    async handleActionHover(event) {
       const types = ["feature", "item", "spell", "weapon", "magicItem"];
-      const [actionType, actionId] = encodedValue.split("|");
+      const { actionType, actionId } = this.action.system;
 
       if (!types.includes(actionType)) return;
 
       const item = coreModule.api.Utils.getItem(this.actor, actionId);
 
-      switch (event.type) {
-        case "mouseenter":
-        case "mouseover":
-          Hooks.call("tokenActionHudSystemActionHoverOn", event, item);
-          break;
-        case "mouseleave":
-        case "mouseout":
-          Hooks.call("tokenActionHudSystemActionHoverOff", event, item);
-          break;
+      if (this.isHover) {
+        Hooks.call("tokenActionHudSystemActionHoverOn", event, item);
+      } else {
+        Hooks.call("tokenActionHudSystemActionHoverOff", event, item);
       }
     }
   };

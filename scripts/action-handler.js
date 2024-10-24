@@ -159,7 +159,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           return {
             id: `${actionType}-${abilityId}`,
             name: (this.abbreviateSkills) ? Utils.capitalize(abilityId) : name,
-            encodedValue: [actionType, abilityId].join(this.delimiter),
             icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
             info1: (this.actor) ? {
               text: coreModule.api.Utils.getModifier(mod),
@@ -169,7 +168,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
               text: `(${coreModule.api.Utils.getModifier(ability?.save)})`,
               title: `${game.i18n.localize("DND5E.SavingThrow")}: ${coreModule.api.Utils.getModifier(ability?.save)}`
             } : null,
-            listName: this.#getListName(actionType, name)
+            listName: this.#getListName(actionType, name),
+            system: { actionType, abilityId }
           };
         });
 
@@ -260,10 +260,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return {
           id,
           name: game.i18n.localize(name),
-          encodedValue: [actionType, id].join(this.delimiter),
           info1: getInfo1(id),
           cssClass: (id === "initiative" ) ? `toggle${getActive()}` : "",
-          listName: this.#getListName(actionType, name)
+          listName: this.#getListName(actionType, name),
+          system: { actionType, actionId: id }
         };
       });
 
@@ -293,11 +293,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return {
           id: condition.id,
           name,
-          encodedValue: [actionType, condition.id].join(this.delimiter),
           img: coreModule.api.Utils.getImage(condition),
           cssClass: `toggle${(hasCondition) ? " active" : ""}`,
           listName: this.#getListName(actionType, name),
-          tooltip: await this.#getTooltip(await this.#getConditionTooltipData(condition.id, condition.name))
+          tooltip: await this.#getTooltip(await this.#getConditionTooltipData(condition.id, condition.name)),
+          system: { actionType, actionId: condition.id }
         };
       }));
 
@@ -401,10 +401,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           id: counter.key,
           name: counter.label,
           listName: this.#getListName(actionType, counter.name),
-          encodedValue: [actionType, (counter.system) ? counter.key : encodeURIComponent(`${counter.key}>${counter.type}`)].join(this.delimiter),
           cssClass,
           img,
-          info1
+          info1,
+          system: { actionType, counterKey: counter.key, counterType: counter.type}
         };
       });
 
@@ -426,13 +426,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Map passive and temporary effects to new maps
       const passiveEffects = new Map();
       const temporaryEffects = new Map();
-      const conditionIds = new Set(Object.keys(CONFIG.DND5E.conditionTypes).map(key => dnd5e.utils.staticID(`dnd5e${key}`)));
+      const statusEffectIds = new Set(CONFIG.statusEffects.map(statusEffect => statusEffect._id));
 
       // Iterate effects and add to a map based on the isTemporary value
       for (const [effectId, effect] of effects.entries()) {
         if (effect.isSuppressed) continue;
         if (effect.parent?.system?.identified === false && !game.user.isGM) continue;
-        if (conditionIds.has(effect.id)) continue;
+        if (statusEffectIds.has(effect.id)) continue;
 
         if (effect.isTemporary) { temporaryEffects.set(effectId, effect); }
         else { passiveEffects.set(effectId, effect); }
@@ -459,11 +459,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const actions = [{
         id: "exhaustion",
         name: game.i18n.localize("DND5E.Exhaustion"),
-        encodedValue: [actionType, "exhaustion"].join(this.delimiter),
         cssClass: `toggle${active}`,
         img: coreModule.api.Utils.getImage("modules/token-action-hud-dnd5e/icons/exhaustion.svg"),
         info1: { text: this.actor.system.attributes.exhaustion },
-        listName: this.#getListName(actionType, name)
+        listName: this.#getListName(actionType, name),
+        system: { actionType, actionId: "exhaustion" }
       }];
 
       // Add actions to HUD
@@ -624,8 +624,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return {
           id,
           name,
-          encodedValue: [actionType, id].join(this.delimiter),
-          listName: this.#getListName(actionType, name)
+          listName: this.#getListName(actionType, name),
+          system: { actionType, actionId: id }
         };
       });
 
@@ -650,10 +650,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           return {
             id,
             name: this.abbreviateSkills ? Utils.capitalize(id) : name,
-            encodedValue: [actionType, id].join(this.delimiter),
             icon1: this.#getProficiencyIcon(skill.value),
             info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(skill.total) } : "",
-            listName: this.#getListName(actionType, name)
+            listName: this.#getListName(actionType, name),
+            system: { actionType, actionId: id }
           };
         } catch(error) {
           coreModule.api.Logger.error(skill);
@@ -818,7 +818,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         .map(utilityType => {
           const id = utilityType[0];
           const name = utilityType[1].name;
-          const encodedValue = [actionType, id].join(this.delimiter);
           let cssClass = "";
           if (utilityType[0] === "inspiration") {
             const active = this.actors.every(actor => actor.system.attributes?.inspiration)
@@ -829,9 +828,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           return {
             id,
             name,
-            encodedValue,
             cssClass,
-            listName: this.#getListName(actionType, name)
+            listName: this.#getListName(actionType, name),
+            system: { actionType, actionId: id }
           };
         });
 
@@ -885,7 +884,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return {
         id,
         name,
-        encodedValue: [actionType, id].join(this.delimiter),
         cssClass,
         img: coreModule.api.Utils.getImage(entity),
         icon1: this.#getActivationTypeIcon(entity.system?.activities?.contents[0]?.activation.type),
@@ -895,7 +893,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         info2: info?.info2,
         info3: info?.info3,
         listName: this.#getListName(actionType, name),
-        tooltip
+        tooltip,
+        system: { actionType, actionId: id }
       };
     }
 

@@ -52,10 +52,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           const effect = entry.item;
           const id = effect.id;
           const name = effect.name;
-          const encodedValue = [
-            "magicItem",
-            `${magicItem.id}>${id}`
-          ].join("|");
           const img = coreModule.api.Utils.getImage(effect);
           const info1 = effect.consumption;
           const info2 = (effect.baseLevel) ? `${coreModule.api.Utils.i18n("DND5E.AbbreviationLevel")} ${effect.baseLevel}` : "";
@@ -66,7 +62,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             img,
             info1,
             info2,
-            selected: true
+            selected: true,
+            system: { actionType: "magicItem", itemId: magicItem.id, effectId: id}
           };
         });
 
