@@ -18,7 +18,7 @@
   "flags": {},
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": "12",
+    "minimum": "12.331",
     "verified": "12.331"
   },
   "esmodules": [
@@ -89,7 +89,7 @@
         "compatibility": {
           "minimum": "4.0.0",
           "maximum": "4.99",
-          "verified": "4.0.2"
+          "verified": "4.0.4"
         }
       }
     ],
@@ -98,9 +98,9 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "1.5.4",
-          "maximum": "1.5.99",
-          "verified": "1.5.7"
+          "minimum": "2.0.0",
+          "maximum": "1.0.99",
+          "verified": "2.0.0"
         }
       }
     ],

@@ -945,9 +945,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       const preparationModes = new Set(Object.keys(CONFIG.DND5E.spellPreparationModes).filter(preparationMode => preparationMode !== "prepared"));
 
-      // Return true if spell is a cantrip, has a preparation mode other than 'prepared' or is prepared
-      return spell.system.level === 0 || preparationModes.has(spell.system.preparation.mode)
-      || spell.system.preparation.prepared;
+      // Return true if the spell has a preparation mode other than 'prepared' or is prepared
+      return preparationModes.has(spell.system.preparation.mode) || spell.system.preparation.prepared;
     }
 
     #getListName(actionType, actionName) {
