@@ -235,7 +235,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // If token's turn, include endTurn
       const combatType = {
         initiative: "tokenActionHud.dnd5e.rollInitiative",
-        ...(game.combat?.current?.tokenId !== this.token?.id && { endTurn: "tokenActionHud.endTurn" })
+        ...(game.combat?.current?.tokenId === this.token?.id && { endTurn: "tokenActionHud.endTurn" })
       };
 
       const tokens = coreModule.api.Utils.getControlledTokens();
