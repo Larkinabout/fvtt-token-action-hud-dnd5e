@@ -169,7 +169,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
               title: `${game.i18n.localize("DND5E.SavingThrow")}: ${coreModule.api.Utils.getModifier(ability?.save)}`
             } : null,
             listName: this.#getListName(actionType, name),
-            system: { actionType, abilityId }
+            system: { actionType, actionId: abilityId }
           };
         });
 
