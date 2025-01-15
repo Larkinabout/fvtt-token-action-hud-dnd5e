@@ -89,7 +89,7 @@
         "compatibility": {
           "minimum": "4.0.0",
           "maximum": "4.99",
-          "verified": "4.0.4"
+          "verified": "4.1.2"
         }
       }
     ],
@@ -100,7 +100,7 @@
         "compatibility": {
           "minimum": "2.0.0",
           "maximum": "2.0.99",
-          "verified": "2.0.0"
+          "verified": "2.0.1"
         }
       }
     ],

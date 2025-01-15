@@ -687,42 +687,49 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         ["_6thLevelSpells", new Map()],
         ["_7thLevelSpells", new Map()],
         ["_8thLevelSpells", new Map()],
-        ["_9thLevelSpells", new Map()]
+        ["_9thLevelSpells", new Map()],
+        ["additionalSpells", new Map()]
       ]);
 
       // Loop through items
       for (const [key, value] of spells) {
         if (!this.#isUsableItem(value) || !this.#isUsableSpell(value)) continue;
 
-        switch (value.system.preparation.mode) {
-          case "atwill":
-            spellsMap.get("atWillSpells").set(key, value); break;
-          case "innate":
-            spellsMap.get("innateSpells").set(key, value); break;
-          case "pact":
-            spellsMap.get("pactSpells").set(key, value); break;
-          default: {
-            switch (value.system.level) {
-              case 0:
-                spellsMap.get("cantrips").set(key, value); break;
-              case 1:
-                spellsMap.get("_1stLevelSpells").set(key, value); break;
-              case 2:
-                spellsMap.get("_2ndLevelSpells").set(key, value); break;
-              case 3:
-                spellsMap.get("_3rdLevelSpells").set(key, value); break;
-              case 4:
-                spellsMap.get("_4thLevelSpells").set(key, value); break;
-              case 5:
-                spellsMap.get("_5thLevelSpells").set(key, value); break;
-              case 6:
-                spellsMap.get("_6thLevelSpells").set(key, value); break;
-              case 7:
-                spellsMap.get("_7thLevelSpells").set(key, value); break;
-              case 8:
-                spellsMap.get("_8thLevelSpells").set(key, value); break;
-              case 9:
-                spellsMap.get("_9thLevelSpells").set(key, value); break;
+        if (value.system.linkedActivity) {
+          if (value.system.linkedActivity.displayInSpellbook) {
+            spellsMap.get("additionalSpells").set(key, value);
+          }
+        } else {
+          switch (value.system.preparation.mode) {
+            case "atwill":
+              spellsMap.get("atWillSpells").set(key, value); break;
+            case "innate":
+              spellsMap.get("innateSpells").set(key, value); break;
+            case "pact":
+              spellsMap.get("pactSpells").set(key, value); break;
+            default: {
+              switch (value.system.level) {
+                case 0:
+                  spellsMap.get("cantrips").set(key, value); break;
+                case 1:
+                  spellsMap.get("_1stLevelSpells").set(key, value); break;
+                case 2:
+                  spellsMap.get("_2ndLevelSpells").set(key, value); break;
+                case 3:
+                  spellsMap.get("_3rdLevelSpells").set(key, value); break;
+                case 4:
+                  spellsMap.get("_4thLevelSpells").set(key, value); break;
+                case 5:
+                  spellsMap.get("_5thLevelSpells").set(key, value); break;
+                case 6:
+                  spellsMap.get("_6thLevelSpells").set(key, value); break;
+                case 7:
+                  spellsMap.get("_7thLevelSpells").set(key, value); break;
+                case 8:
+                  spellsMap.get("_8thLevelSpells").set(key, value); break;
+                case 9:
+                  spellsMap.get("_9thLevelSpells").set(key, value); break;
+              }
             }
           }
         }
@@ -946,7 +953,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const preparationModes = new Set(Object.keys(CONFIG.DND5E.spellPreparationModes).filter(preparationMode => preparationMode !== "prepared"));
 
       // Return true if the spell has a preparation mode other than 'prepared' or is prepared
-      return preparationModes.has(spell.system.preparation.mode) || spell.system.preparation.prepared;
+      return preparationModes.has(spell.system.preparation.mode)
+        || spell.system.preparation.prepared || spell.system.linkedActivity?.displayInSpellbook;
     }
 
     #getListName(actionType, actionName) {

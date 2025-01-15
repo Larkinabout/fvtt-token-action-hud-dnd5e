@@ -34,7 +34,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     async handleAction(event, actionType, actor, token, actionId) {
       switch (actionType) {
         case "ability":
-          this.rollAbility(event, actor, actionId); break;
+          this.rollAbility(actor, actionId); break;
         case "check":
           this.rollAbilityTest(event, actor, actionId); break;
         case "save":
@@ -58,7 +58,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         case "magicItem":
           await this.rollMagicItem(actor, actionId); break;
         case "skill":
-          this.rollSkill(event, actor, actionId); break;
+          this.rollSkill(actor, actionId); break;
         case "utility":
           await this.performUtilityAction(event, actor, token, actionId); break;
         default:
@@ -158,13 +158,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Roll Ability
      * @private
-     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollAbility(event, actor, actionId) {
+    rollAbility(actor, actionId) {
       if (!actor.system?.abilities) return;
-      actor.rollAbility(actionId, { event });
+      actor.rollAbility({ ability: actionId });
     }
 
     /**
@@ -220,13 +219,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Roll Skill
      * @private
-     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollSkill(event, actor, actionId) {
+    rollSkill(actor, actionId) {
       if (!actor.system?.skills) return;
-      actor.rollSkill(actionId, { event });
+      actor.rollSkill({ skill: actionId });
     }
 
     /**
@@ -371,6 +369,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      */
     async handleActionHover(event) {
       const types = ["feature", "item", "spell", "weapon", "magicItem"];
+
+      if (!actor || !this.action?.system?.actionId) return;
+
       const { actionType, actionId } = this.action.system;
 
       if (!types.includes(actionType)) return;

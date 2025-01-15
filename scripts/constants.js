@@ -112,6 +112,7 @@ export const GROUP = {
   abilities: { id: "abilities", name: "tokenActionHud.dnd5e.abilities", type: "system" },
   actions: { id: "actions", name: "DND5E.ActionPl", type: "system" },
   activeFeatures: { id: "active-features", name: "tokenActionHud.dnd5e.activeFeatures", type: "system" },
+  additionalSpells: { id: "additional-spells", name: "DND5E.CAST.SECTIONS.Spellbook", type: "system" },
   artificerInfusions: { id: "artificer-infusions", name: "tokenActionHud.dnd5e.artificerInfusions", type: "system" },
   atWillSpells: { id: "at-will-spells", name: "tokenActionHud.dnd5e.atWillSpells", spellMode: "atwill", type: "system" },
   backgroundFeatures: { id: "background-features", name: "tokenActionHud.dnd5e.backgroundFeatures", type: "system" },
@@ -213,5 +214,6 @@ export const SPELL_GROUP_IDS = [
   "_9thLevelSpells",
   "atWillSpells",
   "innateSpells",
-  "pactSpells"
+  "pactSpells",
+  "additionalSpells"
 ];
