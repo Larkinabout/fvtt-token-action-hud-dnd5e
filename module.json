@@ -98,9 +98,9 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "2.0.0",
+          "minimum": "2.0.11",
           "maximum": "2.0.99",
-          "verified": "2.0.1"
+          "verified": "2.0.11"
         }
       }
     ],
