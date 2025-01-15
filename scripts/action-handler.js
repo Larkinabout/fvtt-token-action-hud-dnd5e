@@ -296,7 +296,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           img: coreModule.api.Utils.getImage(condition),
           cssClass: `toggle${(hasCondition) ? " active" : ""}`,
           listName: this.#getListName(actionType, name),
-          tooltip: await this.#getTooltip(await this.#getConditionTooltipData(condition.id, condition.name)),
+          tooltip: this.#getConditionTooltipData(condition.id, condition.name),
           system: { actionType, actionId: condition.id }
         };
       }));
@@ -887,7 +887,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         cssClass = `toggle${active}`;
       }
       const info = this.#getItemInfo(entity);
-      const tooltip = await this.#getTooltip(await this.#getTooltipData(entity));
+      const tooltip = this.#getTooltipData(entity);
       return {
         id,
         name,
@@ -1161,8 +1161,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Get icon for concentration type
      * @private
-     * @param {object} spell
-     * @returns {string}
+     * @param {object} spell The spell
+     * @returns {string}     The icon
      */
     #getConcentrationIcon(spell) {
       if (spell?.type !== "spell" || !this.displaySpellInfo || !spell.system?.properties?.has("concentration")) return null;
@@ -1174,8 +1174,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Get icon for a prepared spell
      * @private
-     * @param {object} spell
-     * @returns
+     * @param {object} spell The spell
+     * @returns {string}     The icon
      */
     #getPreparedIcon(spell) {
       if (spell?.type !== "spell" || !this.showUnpreparedSpells) return null;
@@ -1189,30 +1189,18 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return ((preparationMode === "prepared" || preparationMode === "always") && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null;
     }
 
-    async #getTooltipData(entity) {
+    #getTooltipData(entity) {
       if (this.tooltipsSetting === "none") return "";
 
       const name = entity?.name ?? "";
 
       if (this.tooltipsSetting === "nameOnly") return name;
 
-      const unidentified = entity.system?.identified === false;
-      const description = (typeof entity?.system?.description === "string") ? entity?.system?.description : (unidentified ? entity?.system?.unidentified?.description : entity?.system?.description?.value) ?? "";
-      let modifiers; let properties; let rarity; let traits;
-      if (!unidentified) {
-        modifiers = entity?.modifiers ?? null;
-        properties = [
-          ...entity.system?.chatProperties ?? [],
-          ...entity.system?.equippableItemCardProperties ?? [],
-          entity.system?.parent?.labels?.activation,
-          entity.system?.parent?.labels?.target,
-          entity.system?.parent?.labels?.range,
-          entity.system?.parent?.labels?.duration
-        ].filter(p => p);
-        rarity = unidentified ? null : entity?.rarity ?? null;
-        traits = (entity?.type === "weapon") ? this.#getWeaponProperties(entity?.system?.properties) : null;
-      }
-      return { name, description, modifiers, properties, rarity, traits };
+      const tooltip = {};
+      tooltip.content = `<section class="loading" data-uuid="${entity.uuid}"><i class="fas fa-spinner fa-spin-pulse"></i></section>`;
+      tooltip.class = "dnd5e2 dnd5e-tooltip item-tooltip";
+
+      return tooltip;
     }
 
     /**
@@ -1221,88 +1209,18 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {*} name   The condition name
      * @returns {object} The tooltip data
      */
-    async #getConditionTooltipData(id, name) {
+    #getConditionTooltipData(id, name) {
       if (this.tooltipsSetting === "none") return "";
 
       const condition = CONFIG.DND5E.conditionTypes[id];
 
-      if (this.tooltipsSetting === "nameOnly" || !condition) return name;
+      if (this.tooltipsSetting === "nameOnly" || !condition?.reference) return name;
 
-      const journalEntry = (condition.reference) ? await fromUuid(condition.reference) : null;
-      const description = journalEntry?.text?.content ?? "";
-      const relativeTo = journalEntry;
-      return {
-        name,
-        description,
-        relativeTo
-      };
-    }
+      const tooltip = {};
+      tooltip.content = `<section class="loading" data-uuid="${condition.reference}"><i class="fas fa-spinner fa-spin-pulse"></i></section>`;
+      tooltip.class = "dnd5e2 dnd5e-tooltip rule-tooltip";
 
-    /**
-     * Get tooltip
-     * @param {object} tooltipData The tooltip data
-     * @returns {string}           The tooltip
-     */
-    async #getTooltip(tooltipData) {
-      if (this.tooltipsSetting === "none") return "";
-      if (typeof tooltipData === "string") return tooltipData;
-
-      const name = game.i18n.localize(tooltipData.name);
-
-      if (this.tooltipsSetting === "nameOnly") return name;
-
-      const nameHtml = `<h3>${name}</h3>`;
-
-      const relativeTo = tooltipData.relativeTo ?? this.actor;
-
-      const description = tooltipData?.descriptionLocalised
-                ?? await TextEditor.enrichHTML(game.i18n.localize(tooltipData?.description ?? ""), { async: true, relativeTo, secrets: true });
-
-      const rarityHtml = tooltipData?.rarity
-        ? `<span class="tah-tag ${tooltipData.rarity}">${game.i18n.localize(RARITY[tooltipData.rarity])}</span>`
-        : "";
-
-      const propertiesHtml = tooltipData?.properties
-        ? `<div class="tah-properties">${tooltipData.properties.map(property => `<span class="tah-property">${game.i18n.localize(property)}</span>`).join("")}</div>`
-        : "";
-
-      const traitsHtml = tooltipData?.traits
-        ? tooltipData.traits.map(trait => `<span class="tah-tag">${game.i18n.localize(trait.label ?? trait)}</span>`).join("")
-        : "";
-
-      const traits2Html = tooltipData?.traits2
-        ? tooltipData.traits2.map(trait => `<span class="tah-tag tah-tag-secondary">${game.i18n.localize(trait.label ?? trait)}</span>`).join("")
-        : "";
-
-      const traitsAltHtml = tooltipData?.traitsAlt
-        ? tooltipData.traitsAlt.map(trait => `<span class="tah-tag tah-tag-alt">${game.i18n.localize(trait.label)}</span>`).join("")
-        : "";
-
-      const modifiersHtml = tooltipData?.modifiers
-        ? `<div class="tah-tags">${tooltipData.modifiers.filter(modifier => modifier.enabled).map(modifier => {
-          const label = game.i18n.localize(modifier.label);
-          const sign = modifier.modifier >= 0 ? "+" : "";
-          const mod = `${sign}${modifier.modifier ?? ""}`;
-          return `<span class="tah-tag tah-tag-transparent">${label} ${mod}</span>`;
-        }).join("")}</div>`
-        : "";
-
-      const tagsJoined = [rarityHtml, traitsHtml, traits2Html, traitsAltHtml].join("");
-
-      const tagsHtml = (tagsJoined) ? `<div class="tah-tags">${tagsJoined}</div>` : "";
-
-      const headerTags = (tagsHtml || modifiersHtml) ? `<div class="tah-tags-wrapper">${tagsHtml}${modifiersHtml}</div>` : "";
-
-      if (!description && !tagsHtml && !modifiersHtml) return name;
-
-      return `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`;
-    }
-
-    #getWeaponProperties(weaponProperties) {
-      if (!weaponProperties) return null;
-      return Object.entries(weaponProperties)
-        .filter(([id, selected]) => selected && CONFIG.DND5E.validProperties.weapon.has(id))
-        .map(([id, _]) => game.i18n.localize(CONFIG.DND5E.itemProperties[id]));
+      return tooltip;
     }
   };
 });

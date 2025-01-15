@@ -370,7 +370,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     async handleActionHover(event) {
       const types = ["feature", "item", "spell", "weapon", "magicItem"];
 
-      if (!actor || !this.action?.system?.actionId) return;
+      if (!this.actor || !this.action?.system?.actionId) return;
 
       const { actionType, actionId } = this.action.system;
 
