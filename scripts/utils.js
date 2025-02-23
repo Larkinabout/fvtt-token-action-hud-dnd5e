@@ -16,6 +16,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       );
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get setting value
      * @param {string} key The key
@@ -31,6 +33,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
       return value;
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Set setting value

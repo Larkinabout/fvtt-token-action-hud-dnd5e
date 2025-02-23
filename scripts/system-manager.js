@@ -19,6 +19,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return actionHandler;
     }
 
+    /* -------------------------------------------- */
+
     /** @override */
     getAvailableRollHandlers() {
       let coreTitle = "Core D&D5e";
@@ -30,6 +32,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const choices = { core: coreTitle };
       return choices;
     }
+
+    /* -------------------------------------------- */
 
     /** @override */
     getRollHandler(rollHandlerId) {
@@ -44,10 +48,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return rollHandler;
     }
 
+    /* -------------------------------------------- */
+
     /** @override */
     registerSettings(onChangeFunction) {
       systemSettings.register(onChangeFunction);
     }
+
+    /* -------------------------------------------- */
 
     /** @override */
     async registerDefaults() {

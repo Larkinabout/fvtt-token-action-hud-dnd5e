@@ -16,6 +16,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
     spellActions = null;
 
+    /* -------------------------------------------- */
+
     /**
      * Build System Actions
      * @override
@@ -80,6 +82,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build character actions
      * @private
@@ -104,6 +108,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.#buildUtility();
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build vehicle actions
      * @private
@@ -123,6 +129,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.#buildUtility();
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build multiple token actions
      * @private
@@ -138,6 +146,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.#buildSkills();
       this.#buildUtility();
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build abilities
@@ -155,7 +165,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         .filter(ability => abilities[ability[0]].value !== 0)
         .map(([abilityId, ability]) => {
           const name = CONFIG.DND5E.abilities[abilityId].label;
-          const mod = (groupId === "saves") ? ability?.save : ability?.mod;
+          // ability.save deprecated in dnd5e 4.3.
+          const abilitySaveValue = ability?.save?.value ?? ability?.save;
+
+          const mod = (groupId === "saves") ? abilitySaveValue : ability?.mod;
           return {
             id: `${actionType}-${abilityId}`,
             name: (this.abbreviateSkills) ? Utils.capitalize(abilityId) : name,
@@ -165,8 +178,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
               title: `${game.i18n.localize("DND5E.ActionAbil")}: ${coreModule.api.Utils.getModifier(mod)}`
             } : null,
             info2: (this.actor && groupId === "abilities") ? {
-              text: `(${coreModule.api.Utils.getModifier(ability?.save)})`,
-              title: `${game.i18n.localize("DND5E.SavingThrow")}: ${coreModule.api.Utils.getModifier(ability?.save)}`
+              text: `(${coreModule.api.Utils.getModifier(abilitySaveValue)})`,
+              title: `${game.i18n.localize("DND5E.SavingThrow")}: ${coreModule.api.Utils.getModifier(abilitySaveValue)}`
             } : null,
             listName: this.#getListName(actionType, name),
             system: { actionType, actionId: abilityId }
@@ -176,6 +189,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Add actions to action list
       this.addActions(actions, { id: groupId });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build activations
@@ -227,6 +242,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build combat
      * @private
@@ -271,6 +288,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.addActions(actions, { id: "combat" });
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build conditions
      * @private
@@ -304,6 +323,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Add actions to HUD
       this.addActions(actions, { id: "conditions" });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build counters
@@ -412,6 +433,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.addActions(actions, { id: "counters" });
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build effects
      * @private
@@ -445,6 +468,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       ]);
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build exhaustion
      * @private
@@ -469,6 +494,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Add actions to HUD
       this.addActions(actions, { id: "exhaustion" });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build features
@@ -550,6 +577,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build inventory
      * @private
@@ -608,6 +637,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build rests
      * @private
@@ -618,7 +649,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Get actions
       const actionType = "utility";
-      const restTypes = { shortRest: "DND5E.ShortRest", longRest: "DND5E.LongRest" };
+      const restTypes = { shortRest: "DND5E.REST.Short.Label", longRest: "DND5E.REST.Long.Label" };
       const actions = Object.entries(restTypes).map(([id, name]) => {
         name = game.i18n.localize(name);
         return {
@@ -632,6 +663,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Add actions to HUD
       this.addActions(actions, { id: "rests" });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build skills
@@ -664,6 +697,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Add actions to HUD
       this.addActions(actions, { id: "skills" });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Build spells
@@ -800,6 +835,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build utility
      * @private
@@ -848,6 +885,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.addActions(actions, groupData);
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Build actions
      * @public
@@ -871,11 +910,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.addActions(actions, groupData);
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get action
      * @private
      * @param {object} entity      The entity
-     *  @param {string} actionType The action type
+     * @param {string} actionType The action type
      * @returns {object}           The action
      */
     async #getAction(entity, actionType = "item") {
@@ -905,6 +946,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       };
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Is active item
      * @private
@@ -918,6 +961,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return activationTypes.has(activationType) || item.type === "tool";
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Is equipped item
      * @private
@@ -930,6 +975,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       || (item.system.equipped && item.type !== "consumable");
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Is usable item
      * @private
@@ -939,6 +986,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     #isUsableItem(item) {
       return this.showUnchargedItems || !!item.system.uses?.value || !item.system.uses?.max;
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Is usable spell
@@ -957,10 +1006,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         || spell.system.preparation.prepared || spell.system.linkedActivity?.displayInSpellbook;
     }
 
+    /* -------------------------------------------- */
+
     #getListName(actionType, actionName) {
       const prefix = `${game.i18n.localize(ACTION_TYPE[actionType])}: ` ?? "";
       return `${prefix}${actionName}` ?? "";
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get item info
@@ -975,6 +1028,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       return { info1, info2, info3 };
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Add spell info
@@ -1014,6 +1069,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return info;
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get valid actors
      * @private
@@ -1024,6 +1081,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return this.actors.every(actor => allowedTypes.includes(actor.type)) ? this.actors : [];
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get valid tokens
      * @private
@@ -1033,6 +1092,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const allowedTypes = ["character", "npc"];
       return this.actors.every(actor => allowedTypes.includes(actor.type)) ? this.tokens : [];
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get quantity
@@ -1047,6 +1108,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         title: `${game.i18n.localize("DND5E.Quantity")}: ${quantity}`
       };
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get uses
@@ -1065,6 +1128,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const title = `${text}${perPeriod}`;
       return { text, title };
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get consume
@@ -1115,6 +1180,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return {};
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Discard slow items
      * @private
@@ -1135,6 +1202,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }));
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get proficiency icon
      * @param {string} level
@@ -1145,6 +1214,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const icon = PROFICIENCY_LEVEL_ICON[level];
       return (icon) ? `<i class="${icon}" title="${title}"></i>` : "";
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get icon for the activation type
@@ -1158,6 +1229,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return (icon) ? `<i class="${icon}" title="${title}"></i>` : "";
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Get icon for concentration type
      * @private
@@ -1170,6 +1243,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const icon = CONCENTRATION_ICON;
       return `<dnd5e-icon src="${icon}" title="${title}">`;
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get icon for a prepared spell
@@ -1189,6 +1264,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return ((preparationMode === "prepared" || preparationMode === "always") && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null;
     }
 
+    /* -------------------------------------------- */
+
     #getTooltipData(entity) {
       if (this.tooltipsSetting === "none") return "";
 
@@ -1202,6 +1279,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       return tooltip;
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Get condition tooltip data

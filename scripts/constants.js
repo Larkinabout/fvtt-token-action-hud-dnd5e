@@ -5,6 +5,8 @@ export const MODULE = {
   ID: "token-action-hud-dnd5e"
 };
 
+/* -------------------------------------------- */
+
 /**
  * Core module
  */
@@ -12,10 +14,14 @@ export const CORE_MODULE = {
   ID: "token-action-hud-core"
 };
 
+/* -------------------------------------------- */
+
 /**
  * Core module version required by the system module
  */
 export const REQUIRED_CORE_MODULE_VERSION = "2.0";
+
+/* -------------------------------------------- */
 
 /**
  * Action type
@@ -34,6 +40,8 @@ export const ACTION_TYPE = {
   spell: "TYPES.Item.spell",
   utility: "DND5E.ActionUtil"
 };
+
+/* -------------------------------------------- */
 
 /**
  * Activation types
@@ -54,10 +62,14 @@ export const ACTIVATION_TYPE = {
   other: { group: "other-actions" }
 };
 
+/* -------------------------------------------- */
+
 /**
  * Concentration icon
  */
 export const CONCENTRATION_ICON = "systems/dnd5e/icons/svg/statuses/concentrating.svg";
+
+/* -------------------------------------------- */
 
 export const CUSTOM_DND5E = {
   ID: "custom-dnd5e",
@@ -67,6 +79,8 @@ export const CUSTOM_DND5E = {
     npc: "npc-counters"
   }
 };
+
+/* -------------------------------------------- */
 
 /**
  * Feature Group IDs
@@ -95,6 +109,8 @@ export const FEATURE_GROUP_IDS = [
   "runes",
   "superiorHuntersDefense"
 ];
+
+/* -------------------------------------------- */
 
 /**
  * Groups
@@ -166,10 +182,14 @@ export const GROUP = {
   weapons: { id: "weapons", name: "TYPES.Item.weaponPl", type: "system" }
 };
 
+/* -------------------------------------------- */
+
 /**
  * Prepared icon
  */
 export const PREPARED_ICON = "fas fa-sun";
+
+/* -------------------------------------------- */
 
 /**
  * Proficiency level icons
@@ -180,6 +200,8 @@ export const PROFICIENCY_LEVEL_ICON = {
   1: "fa-solid fa-circle",
   2: "fa-regular fa-circle-dot"
 };
+
+/* -------------------------------------------- */
 
 /**
  * Rarity
@@ -193,10 +215,14 @@ export const RARITY = {
   artifact: "tokenActionHud.dnd5e.artifact"
 };
 
+/* -------------------------------------------- */
+
 /**
  * Ritual icon
  */
 export const RITUAL_ICON = "fas fa-circle-r";
+
+/* -------------------------------------------- */
 
 /**
  * Spell Group IDs

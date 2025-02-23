@@ -22,6 +22,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Handle action
      * @private
@@ -66,6 +68,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Modify Counter
      * @private
@@ -85,6 +89,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Modify Exhaustion
      * @private
@@ -98,6 +104,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Modify Inspiration
      * @private
@@ -107,6 +115,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const update = !actor.system.attributes.inspiration;
       actor.update({ "system.attributes.inspiration": update });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Modify Custom Counter
@@ -155,6 +165,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Roll Ability
      * @private
@@ -165,6 +177,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (!actor.system?.abilities) return;
       actor.rollAbility({ ability: actionId });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Roll Ability Save
@@ -178,6 +192,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       actor.rollAbilitySave(actionId, { event });
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Roll Ability Test
      * @private
@@ -190,6 +206,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       actor.rollAbilityTest(actionId, { event });
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Roll Death Save
      * @private
@@ -199,6 +217,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     rollDeathSave(event, actor) {
       actor.rollDeathSave({ event });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Roll Magic Item
@@ -216,6 +236,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Roll Skill
      * @private
@@ -226,6 +248,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (!actor.system?.skills) return;
       actor.rollSkill({ skill: actionId });
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Use Item
@@ -244,6 +268,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Needs Recharge
      * @private
@@ -253,6 +279,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     #needsRecharge(item) {
       return (item?.system?.uses?.period === "recharge" && !(item?.system?.uses?.value > 0));
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Perform utility action
@@ -269,7 +297,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           if (!token || game.combat?.current?.tokenId !== token.id) break;
           await game.combat?.nextTurn(); break;
         case "initiative":
-          await this.rollInitiative(actor); break;
+          await this.rollInitiative(event, actor); break;
         case "inspiration":
           await this.modifyInspiration(actor); break;
         case "longRest":
@@ -282,16 +310,21 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Roll Initiative
+     * @param {object} event The event
      * @param {object} actor The actor
      * @private
      */
-    async rollInitiative(actor) {
+    async rollInitiative(event, actor) {
       if (!actor) return;
-      await actor.rollInitiative({ createCombatants: true });
+      await actor.rollInitiativeDialog({ event });
       Hooks.callAll("forceUpdateTokenActionHud");
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Toggle Condition
@@ -323,6 +356,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Find condition
      * @private
@@ -333,6 +368,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       return CONFIG.statusEffects.find(effect => effect.id === actionId);
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Find effect
      * @param {object} actor    The actor
@@ -342,6 +379,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     #findEffect(actor, actionId) {
       return actor.effects.find(effect => effect.statuses.every(status => status === actionId));
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Toggle Effect
@@ -362,10 +401,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Handle action hover
      * @override
-     * @param {object} event
+     * @param {object} event The event
      */
     async handleActionHover(event) {
       const types = ["feature", "item", "spell", "weapon", "magicItem"];

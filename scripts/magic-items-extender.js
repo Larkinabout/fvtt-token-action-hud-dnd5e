@@ -8,6 +8,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       this.actor = null;
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Extend the action list
      */
@@ -72,6 +74,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       });
     }
 
+    /* -------------------------------------------- */
+
     /**
      * Whether the magic item is equipped or not
      * @param {object} magicItem The item
@@ -80,6 +84,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     _isItemEquipped(magicItem) {
       return magicItem.item.system.equipped;
     }
+
+    /* -------------------------------------------- */
 
     /**
      * Whether the magic items is attuned or not
