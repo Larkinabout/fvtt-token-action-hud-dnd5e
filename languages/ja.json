@@ -1,98 +1,98 @@
 {
   "tokenActionHud": {
     "dnd5e": {
-      "1stLevelSpells": "1st Level Spells",
-      "2ndLevelSpells": "2nd Level Spells",
-      "3rdLevelSpells": "3rd Level Spells",
-      "4thLevelSpells": "4th Level Spells",
-      "5thLevelSpells": "5th Level Spells",
-      "6thLevelSpells": "6th Level Spells",
-      "7thLevelSpells": "7th Level Spells",
-      "8thLevelSpells": "8th Level Spells",
-      "9thLevelSpells": "9th Level Spells",
+      "1stLevelSpells": "1レベル呪文",
+      "2ndLevelSpells": "2レベル呪文",
+      "3rdLevelSpells": "3レベル呪文",
+      "4thLevelSpells": "4レベル呪文",
+      "5thLevelSpells": "5レベル呪文",
+      "6thLevelSpells": "6レベル呪文",
+      "7thLevelSpells": "7レベル呪文",
+      "8thLevelSpells": "8レベル呪文",
+      "9thLevelSpells": "9レベル呪文",
       "abilities": "能力値",
-      "activeFeatures": "Active Features",
-      "artifact": "Artifact",
-      "artificerInfusions": "Artificer Infusions",
-      "atWillSpells": "At-Will Spells",
-      "backgroundFeatures": "Background Features",
+      "activeFeatures": "アクティブ特徴",
+      "artifact": "アーティファクト",
+      "artificerInfusions": "魔具化式",
+      "atWillSpells": "常に発動できる呪文",
+      "backgroundFeatures": "背景特徴",
       "bonusActions": "ボーナス･アクション",
-      "cantrips": "Cantrips",
-      "channelDivinity": "Channel Divinity",
-      "check": "Check",
+      "cantrips": "初級呪文",
+      "channelDivinity": "神性伝導",
+      "check": "判定",
       "checks": "判定",
-      "classFeatures": "Class Features",
-      "common": "Common",
-      "condition": "Condition",
+      "classFeatures": "クラス特徴",
+      "common": "コモン",
+      "condition": "状態",
       "conditions": "状態",
       "counter": "カウンター",
       "counters": "カウンター",
       "crewActions": "乗組員の行動",
-      "defensiveTactics": "Defensive Tactics",
-      "eldritchInvocations": "Eldritch Invocations",
-      "elementalDisciplines": "Elemental Disciplines",
-      "feats": "Feats",
-      "fightingStyles": "Fighting Styles",
-      "huntersPrey": "Hunter's Prey",
-      "innateSpells": "Innate Spells",
-      "item": "Item",
-      "kiAbilities": "Ki Abilities",
+      "defensiveTactics": "守りの技",
+      "eldritchInvocations": "妖術",
+      "elementalDisciplines": "元素の技法",
+      "feats": "特技",
+      "fightingStyles": "戦闘スタイル",
+      "huntersPrey": "狩りの技",
+      "innateSpells": "生得呪文",
+      "item": "アイテム",
+      "kiAbilities": "気",
       "lair": "住処",
       "lairActions": "住処アクション",
       "legendary": "伝説",
       "legendaryActions": "伝説的アクション",
       "magicItems": "魔法アイテム",
-      "maneuvers": "Maneuvers",
-      "metamagicOptions": "Metamagic Options",
-      "monsterFeatures": "Monster Features",
-      "multiattacks": "Multiattacks",
+      "maneuvers": "戦技",
+      "metamagicOptions": "呪文修正",
+      "monsterFeatures": "モンスター特徴",
+      "multiattacks": "複数回攻撃",
       "otherActions": "その他のアクション",
-      "pactBoons": "Pact Boons",
-      "pactSpells": "Pact Spells",
-      "passiveFeatures": "Passive Features",
-      "psionicPowers": "Psionic Powers",
-      "raceFeatures": "Race Features",
-      "rare": "Rare",
+      "pactBoons": "契約の恩恵",
+      "pactSpells": "契約呪文",
+      "passiveFeatures": "パッシブ特徴",
+      "psionicPowers": "サイオニック能力",
+      "raceFeatures": "種族特徴",
+      "rare": "レア",
       "rests": "休憩",
       "rollInitiative": "イニシアチブロール",
-      "runes": "Runes",
-      "skill": "Skill",
+      "runes": "ルーン",
+      "skill": "技能",
       "skills": "技能",
-      "superiorHuntersDefense": "Superior Hunter's Defense",
-      "uncommon": "Uncommon",
-      "veryRare": "Very Rare",
+      "superiorHuntersDefense": "上級の守りの技",
+      "uncommon": "アンコモン",
+      "veryRare": "ヴェリーレア",
       "settings": {
         "abbreviateSkills": {
-          "hint": "Display skill and ability names as a three-character abbreviation",
-          "name": "Abbreviate Skill and Ability Names"
+          "hint": "技能および能力の名前を略語で表示します",
+          "name": "技能と能力名の略記"
         },
         "displaySpellInfo": {
-          "hint": "Display spell component information, concentration, and ritual status next to the spell's name",
-          "name": "Display Spell Information"
+          "hint": "呪文名の横に、呪文の構成要素の情報、集中、儀式のステータスを表示します",
+          "name": "呪文情報を表示"
         },
         "showItemsWithoutActivationCosts": {
-          "hint": "Show items without an activation cost",
-          "name": "Show Items without Activation Costs"
+          "hint": "発動コストなしのアイテムを表示します",
+          "name": "発動コストなしのアイテムを表示"
         },
         "showSlowActions": {
-          "hint": "Show actions that take longer than one round",
-          "name": "Show Slow Actions"
+          "hint": "1ラウンド以上かかるアクションを表示します",
+          "name": "遅いアクションを表示"
         },
         "showUnchargedItems": {
-          "hint": "Show items with no charges remaining",
-          "name": "Show Uncharged Items"
+          "hint": "チャージが残っていないアイテムを表示します",
+          "name": "未チャージのアイテムを表示"
         },
         "showUnequippedItems": {
-          "hint": "Show unequipped items",
-          "name": "Show Unequipped Items"
+          "hint": "未装備のアイテムを表示します",
+          "name": "未装備のアイテムを表示"
         },
         "showUnequippedItemsNpcs": {
-          "hint": "Show unequipped items for NPCs",
-          "name": "Show Unequipped Items for NPCs"
+          "hint": "NPCの未装備のアイテムを表示します",
+          "name": "NPCの未装備のアイテムを表示"
         },
         "showUnpreparedSpells": {
-          "hint": "Show unprepared spells",
-          "name": "Show Unprepared Spells"
+          "hint": "未準備の呪文を表示します",
+          "name": "未準備の呪文を表示"
         }
       }
     }
