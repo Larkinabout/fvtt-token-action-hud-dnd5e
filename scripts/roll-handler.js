@@ -36,11 +36,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     async handleAction(event, actionType, actor, token, actionId) {
       switch (actionType) {
         case "ability":
-          this.rollAbility(actor, actionId); break;
+          this.rollAbility(event, actor, actionId); break;
         case "check":
-          this.rollAbilityTest(event, actor, actionId); break;
+          this.rollAbilityCheck(event, actor, actionId); break;
         case "save":
-          this.rollAbilitySave(event, actor, actionId); break;
+          this.rollSavingThrow(event, actor, actionId); break;
         case "condition":
           if (!token) return;
           await this.toggleCondition(actor, token, actionId); break;
@@ -60,7 +60,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         case "magicItem":
           await this.rollMagicItem(actor, actionId); break;
         case "skill":
-          this.rollSkill(actor, actionId); break;
+          this.rollSkill(event, actor, actionId); break;
         case "utility":
           await this.performUtilityAction(event, actor, token, actionId); break;
         default:
@@ -169,44 +169,52 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
     /**
      * Roll Ability
-     * @private
+     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollAbility(actor, actionId) {
+    rollAbility(event, actor, actionId) {
       if (!actor.system?.abilities) return;
-      actor.rollAbility({ ability: actionId });
+      actor.rollAbility({ ability: actionId, event });
     }
 
     /* -------------------------------------------- */
 
     /**
-     * Roll Ability Save
+     * Roll Saving Throw
      * @private
      * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollAbilitySave(event, actor, actionId) {
-      if (!actor.system?.abilities) return;
-      actor.rollAbilitySave(actionId, { event });
+    rollSavingThrow(event, actor, actionId) {
+      if ( !actor.system?.abilities ) return;
+      if ( typeof actor.rollSavingThrow === "function" ) {
+        actor.rollSavingThrow({ ability: actionId, event });
+      } else {
+        actor.rollAbilitySave(actionId, { event });
+      }
     }
 
     /* -------------------------------------------- */
 
     /**
-     * Roll Ability Test
+     * Roll Ability Check
      * @private
      * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollAbilityTest(event, actor, actionId) {
-      if (!actor.system?.abilities) return;
-      actor.rollAbilityTest(actionId, { event });
+    rollAbilityCheck(event, actor, actionId) {
+      if ( !actor.system?.abilities ) return;
+      if ( typeof actor.rollAbilityCheck === "function" ) {
+        actor.rollAbilityCheck({ ability: actionId, event });
+      } else {
+        actor.rollAbilityTest(actionId, { event });
+      }
     }
 
-    /* -------------------------------------------- */
+    /* -------------------------------------------- */Russe
 
     /**
      * Roll Death Save
@@ -241,12 +249,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Roll Skill
      * @private
+     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-    rollSkill(actor, actionId) {
+    rollSkill(event, actor, actionId) {
       if (!actor.system?.skills) return;
-      actor.rollSkill({ skill: actionId });
+      actor.rollSkill({ skill: actionId, event });
     }
 
     /* -------------------------------------------- */
