@@ -735,7 +735,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             spellsMap.get("additionalSpells").set(key, value);
           }
         } else {
-          switch (value.system.preparation.mode) {
+          switch (value.system.method) {
             case "atwill":
               spellsMap.get("atWillSpells").set(key, value); break;
             case "innate":
@@ -999,11 +999,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (this.actor?.type !== "character" && this.showUnequippedItems) return true;
       if (this.showUnpreparedSpells) return true;
 
-      const preparationModes = new Set(Object.keys(CONFIG.DND5E.spellPreparationModes).filter(preparationMode => preparationMode !== "prepared"));
-
-      // Return true if the spell has a preparation mode other than 'prepared' or is prepared
-      return preparationModes.has(spell.system.preparation.mode)
-        || spell.system.preparation.prepared || spell.system.linkedActivity?.displayInSpellbook;
+      // Return true if the spell has a spellcasting method other than 'spell' (which maps to 'prepared') or is prepared
+      return (spell.system.method !== "spell")
+        || spell.system.prepared || spell.system.linkedActivity?.displayInSpellbook;
     }
 
     /* -------------------------------------------- */
@@ -1255,13 +1253,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     #getPreparedIcon(spell) {
       if (spell?.type !== "spell" || !this.showUnpreparedSpells) return null;
       const level = spell.system.level;
-      const preparationMode = spell.system.preparation.mode;
-      const prepared = spell.system.preparation.prepared;
+      const preparationMode = spell.system.method;
+      const prepared = spell.system.prepared;
       const icon = prepared ? PREPARED_ICON : `${PREPARED_ICON} tah-icon-disabled`;
-      const title = preparationMode === "always" ? game.i18n.localize("DND5E.SpellPrepAlways") : prepared ? game.i18n.localize("DND5E.SpellPrepared") : game.i18n.localize("DND5E.SpellUnprepared");
+      const title = prepared === CONFIG.DND5E.spellPreparationStates.always.value ? game.i18n.localize("DND5E.SpellPrepAlways") : prepared ? game.i18n.localize("DND5E.SpellPrepared") : game.i18n.localize("DND5E.SpellUnprepared");
 
-      // Return icon if the preparation mode is 'prepared' or 'always' and the spell is not a cantrip
-      return ((preparationMode === "prepared" || preparationMode === "always") && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null;
+      // Return icon if the spellcasting method is 'spell' (prepared) or prepared is always and the spell is not a cantrip
+      return ((preparationMode === "spell" || prepared === CONFIG.DND5E.spellPreparationStates.always.value) && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null;
     }
 
     /* -------------------------------------------- */
