@@ -38,6 +38,7 @@ export const ACTION_TYPE = {
   save: "DND5E.SAVE.Title.one",
   skill: "tokenActionHud.dnd5e.skill",
   spell: "TYPES.Item.spell",
+  tool: "TYPES.Item.tool",
   utility: "DND5E.ActionUtil"
 };
 
@@ -149,6 +150,7 @@ export const GROUP = {
   equipment: { id: "equipment", name: "TYPES.Item.equipmentPl", type: "system" },
   equipped: { id: "equipped", name: "DND5E.Equipped", type: "system" },
   exhaustion: { id: "exhaustion", name: "DND5E.Exhaustion", type: "system" },
+  favorites: { id: "favorites", name: "tokenActionHud.dnd5e.favorites", type: "system" },
   feats: { id: "feats", name: "tokenActionHud.dnd5e.feats", type: "system" },
   fightingStyles: { id: "fighting-styles", name: "tokenActionHud.dnd5e.fightingStyles", type: "system" },
   huntersPrey: { id: "hunters-prey", name: "tokenActionHud.dnd5e.huntersPrey", type: "system" },

@@ -59,6 +59,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           break;
         case "skill":
           this.rollSkill(event, actor, actionId); break;
+        case "tool":
+          this.rollToolCheck(event, actor, actionId); break;
         case "utility":
           await this.performUtilityAction(event, actor, token, actionId); break;
         default:
@@ -236,6 +238,20 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     rollSkill(event, actor, actionId) {
       if (!actor.system?.skills) return;
       actor.rollSkill({ skill: actionId, event });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Roll Tool Check
+     * @private
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} actionId The tool key
+     */
+    rollToolCheck(event, actor, actionId) {
+      if (!actor.system?.tools) return;
+      actor.rollToolCheck({ tool: actionId, event });
     }
 
     /* -------------------------------------------- */

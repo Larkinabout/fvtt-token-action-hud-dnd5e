@@ -10,7 +10,7 @@ export let ActionHandler = null;
 Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
   const characterPlan = {
     inventoryGroups: ["equipped", "consumables", "containers", "equipment", "loot", "tools", "weapons", "unequipped"],
-    parallel: ["conditions", "effects", "features", "inventory", "spells"],
+    parallel: ["conditions", "effects", "favorites", "features", "inventory", "spells"],
     sequential: ["abilities", "checks", "saves", "combat", "counters", "exhaustion", "rests", "skills", "utility"]
   };
   const BUILD_PLANS = {
@@ -88,6 +88,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         counters: () => this.#buildCounters(),
         effects: () => this.#buildEffects(),
         exhaustion: () => this.#buildExhaustion(),
+        favorites: () => this.#buildFavorites(),
         features: () => this.#buildFeatures(),
         inventory: () => this.#buildInventory(),
         rests: () => this.#buildRests(),
@@ -448,6 +449,119 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Add actions to HUD
       this.addActions(actions, { id: "exhaustion" });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Build favorites.
+     * @private
+     */
+    async #buildFavorites() {
+      const favorites = this.actor?.system.favorites;
+      if (!favorites?.length) return;
+
+      const sorted = [...favorites].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+      const actions = (await Promise.all(sorted.map(fav => this.#getFavoriteAction(fav)))).filter(Boolean);
+
+      this.addActions(actions, { id: "favorites" });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Build a Favorites action.
+     * @private
+     * @param {object} favorite { id, type, sort }
+     * @returns {Promise<object|null>}
+     */
+    async #getFavoriteAction(favorite) {
+      const { id, type } = favorite;
+
+      if (type === "item") {
+        const item = await fromUuid(id, { relative: this.actor });
+        if (!item) return null;
+        const action = await this.#getAction(item, this.#itemActionType(item));
+        action.id = `${item.id}_favorite`;
+        return action;
+      }
+
+      if (type === "activity") {
+        const activity = await fromUuid(id, { relative: this.actor });
+        if (!activity) return null;
+        const item = activity.item;
+        const action = await this.#getAction(item, this.#itemActionType(item));
+        action.id = `${item.id}_${activity.id}_favorite`;
+        action.system.activityId = activity.id;
+        if (activity.name) action.name = `${item.name} — ${activity.name}`;
+        return action;
+      }
+
+      if (type === "effect") {
+        const effect = await fromUuid(id, { relative: this.actor });
+        if (!effect) return null;
+        const actionType = "effect";
+        const active = (!effect.disabled) ? " active" : "";
+        return {
+          id: `${effect.id}_favorite`,
+          name: effect.name,
+          img: coreModule.api.Utils.getImage(effect),
+          cssClass: `toggle${active}`,
+          listName: this.#getListName(actionType, effect.name),
+          system: { actionType, actionId: effect.id }
+        };
+      }
+
+      if (type === "skill") {
+        const def = CONFIG.DND5E.skills?.[id];
+        if (!def) return null;
+        const skillData = this.actor.system.skills?.[id];
+        const actionType = "skill";
+        return {
+          id: `skill-${id}_favorite`,
+          name: this.abbreviateSkills ? Utils.capitalize(id) : def.label,
+          icon1: this.#getProficiencyIcon(skillData?.value),
+          info1: { text: coreModule.api.Utils.getModifier(skillData?.total) },
+          listName: this.#getListName(actionType, def.label),
+          system: { actionType, actionId: id }
+        };
+      }
+
+      if (type === "tool") {
+        const def = CONFIG.DND5E.tools?.[id];
+        if (!def) return null;
+        const toolData = this.actor.system.tools?.[id];
+        const baseItem = dnd5e.documents.Trait?.getBaseItem?.(def.id, { indexOnly: true });
+        const name = baseItem?.name ?? id;
+        const actionType = "tool";
+        return {
+          id: `tool-${id}_favorite`,
+          name,
+          icon1: this.#getProficiencyIcon(toolData?.value),
+          info1: { text: coreModule.api.Utils.getModifier(toolData?.total) },
+          listName: this.#getListName(actionType, name),
+          system: { actionType, actionId: id }
+        };
+      }
+
+      return null;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Map item type to action type.
+     * @private
+     * @param {object} item
+     * @returns {string}
+     */
+    #itemActionType(item) {
+      switch (item?.type) {
+        case "spell": return "spell";
+        case "weapon": return "weapon";
+        case "feat": return "feature";
+        default: return "item";
+      }
     }
 
     /* -------------------------------------------- */
