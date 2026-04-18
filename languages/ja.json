@@ -41,6 +41,7 @@
       "lairActions": "住処アクション",
       "legendary": "伝説",
       "legendaryActions": "伝説的アクション",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "戦技",
       "metamagicOptions": "呪文修正",
       "monsterFeatures": "モンスター特徴",
@@ -55,11 +56,6 @@
       "rests": "休憩",
       "rollInitiative": "イニシアチブロール",
       "runes": "ルーン",
-      "skill": "技能",
-      "skills": "技能",
-      "superiorHuntersDefense": "上級の守りの技",
-      "uncommon": "アンコモン",
-      "veryRare": "ヴェリーレア",
       "settings": {
         "abbreviateSkills": {
           "hint": "技能および能力の名前を略語で表示します",
@@ -93,7 +89,12 @@
           "hint": "未準備の呪文を表示します",
           "name": "未準備の呪文を表示"
         }
-      }
+      },
+      "skill": "技能",
+      "skills": "技能",
+      "superiorHuntersDefense": "上級の守りの技",
+      "uncommon": "アンコモン",
+      "veryRare": "ヴェリーレア"
     }
   }
 }

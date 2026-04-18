@@ -54,7 +54,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           { ...groups._7thLevelSpells, nestId: "spells_7th-level-spells" },
           { ...groups._8thLevelSpells, nestId: "spells_8th-level-spells" },
           { ...groups._9thLevelSpells, nestId: "spells_9th-level-spells" },
-          { ...groups.additionalSpells, nestId: "spells_additional-spells" }
+          { ...groups.additionalSpells, nestId: "spells_additional-spells" },
+          { ...groups.limitedSpells, nestId: "spells_limited-spells" }
         ]
       },
       {

@@ -41,6 +41,7 @@
       "lairActions": "Ações de Covil",
       "legendary": "Lendário",
       "legendaryActions": "Ações Lendárias",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Manobras",
       "metamagicOptions": "Opções de Metamagia",
       "monsterFeatures": "Características de Monstros",
@@ -55,11 +56,6 @@
       "rests": "Descansos",
       "rollInitiative": "Rolar Iniciativa",
       "runes": "Runas",
-      "skill": "Perícia",
-      "skills": "Perícias",
-      "superiorHuntersDefense": "Defesa de Caçador Superior",
-      "uncommon": "Incomum",
-      "veryRare": "Raríssimo",
       "settings": {
         "abbreviateSkills": {
           "hint": "Exibe nomes de perícias e atributos abreviados em três caracteres.",
@@ -93,7 +89,12 @@
           "hint": "Mostra magias despreparadas.",
           "name": "Mostrar Magias Despreparadas"
         }
-      }
+      },
+      "skill": "Perícia",
+      "skills": "Perícias",
+      "superiorHuntersDefense": "Defesa de Caçador Superior",
+      "uncommon": "Incomum",
+      "veryRare": "Raríssimo"
     }
   }
 }

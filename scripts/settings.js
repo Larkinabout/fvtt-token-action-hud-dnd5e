@@ -1,8 +1,8 @@
 import { MODULE } from "./constants.js";
 
 /**
- *
- * @param updateFunc
+ * Register module settings.
+ * @param {Function} updateFunc Callback function
  */
 export function register(updateFunc) {
   game.settings.register(MODULE.ID, "abbreviateSkills", {

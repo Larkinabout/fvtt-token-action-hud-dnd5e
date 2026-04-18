@@ -156,6 +156,7 @@ export const GROUP = {
   kiAbilities: { id: "ki-abilities", name: "tokenActionHud.dnd5e.kiAbilities", type: "system" },
   lairActions: { id: "lair-actions", name: "tokenActionHud.dnd5e.lairActions", type: "system" },
   legendaryActions: { id: "legendary-actions", name: "tokenActionHud.dnd5e.legendaryActions", type: "system" },
+  limitedSpells: { id: "limited-spells", name: "tokenActionHud.dnd5e.limitedSpells", type: "system" },
   loot: { id: "loot", name: "TYPES.Item.lootPl", type: "system" },
   maneuvers: { id: "maneuvers", name: "tokenActionHud.dnd5e.maneuvers", type: "system" },
   metamagicOptions: { id: "metamagic-options", name: "tokenActionHud.dnd5e.metamagicOptions", type: "system" },
@@ -241,5 +242,6 @@ export const SPELL_GROUP_IDS = [
   "atWillSpells",
   "innateSpells",
   "pactSpells",
-  "additionalSpells"
+  "additionalSpells",
+  "limitedSpells"
 ];

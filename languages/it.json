@@ -41,6 +41,7 @@
       "lairActions": "Azioni di Tana",
       "legendary": "Leggendarie",
       "legendaryActions": "Azioni Leggendarie",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Manovre",
       "metamagicOptions": "Opzioni di Metamagia",
       "monsterFeatures": "Privilegi dei Mostri",
@@ -55,11 +56,6 @@
       "rests": "Riposi",
       "rollInitiative": "Tira Iniziativa",
       "runes": "Rune",
-      "skill": "Abilità",
-      "skills": "Abilità",
-      "superiorHuntersDefense": "Difesa Superiore del Cacciatore",
-      "uncommon": "Non Comune",
-      "veryRare": "Molto Raro",
       "settings": {
         "abbreviateSkills": {
           "hint": "Mostra nomi di Abilità e Caratteristiche in 3 Caratteri",
@@ -93,7 +89,12 @@
           "hint": "Mostra Incantesimi non Preparati",
           "name": "Mostra Incantesimi non Preparati"
         }
-      }
+      },
+      "skill": "Abilità",
+      "skills": "Abilità",
+      "superiorHuntersDefense": "Difesa Superiore del Cacciatore",
+      "uncommon": "Non Comune",
+      "veryRare": "Molto Raro"
     }
   }
 }

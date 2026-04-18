@@ -1,7 +1,7 @@
 // System Module Imports
 import {
   ACTIVATION_TYPE, ACTION_TYPE, CONCENTRATION_ICON, CUSTOM_DND5E, FEATURE_GROUP_IDS,
-  GROUP, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RARITY, SPELL_GROUP_IDS
+  GROUP, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, SPELL_GROUP_IDS
 } from "./constants.js";
 import { Utils } from "./utils.js";
 
@@ -120,7 +120,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         .filter(ability => abilities[ability[0]].value !== 0)
         .map(([abilityId, ability]) => {
           const name = CONFIG.DND5E.abilities[abilityId].label;
-          // ability.save deprecated in dnd5e 4.3.
+          // Property ability.save deprecated in dnd5e 4.3.
           const abilitySaveValue = ability?.save?.value ?? ability?.save;
 
           const mod = (groupId === "saves") ? abilitySaveValue : ability?.mod;
@@ -678,7 +678,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         ["_7thLevelSpells", new Map()],
         ["_8thLevelSpells", new Map()],
         ["_9thLevelSpells", new Map()],
-        ["additionalSpells", new Map()]
+        ["additionalSpells", new Map()],
+        ["limitedSpells", new Map()]
       ]);
 
       // Loop through items
@@ -723,6 +724,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             }
           }
         }
+
+        // Also add to Limited Spells if the spell has a usable non-slot activity
+        if (this.#hasLimitedCasting(value)) spellsMap.get("limitedSpells").set(key, value);
       }
 
       // Reverse sort spell slots by level
@@ -784,10 +788,40 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
         const data = { groupData, actionData: spellsMap.get(id), actionType: "spell" };
 
+        // Limited Spells
+        if (id === "limitedSpells") {
+          await this.#buildLimitedSpells(groupData, spellsMap.get(id));
+          continue;
+        }
+
         // Build actions and activations
         await this.buildActions(data);
         await this.buildActivations(data);
       }
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Build Limited Spells.
+     * @private
+     * @param {object} groupData
+     * @param {Map} spells
+     */
+    async #buildLimitedSpells(groupData, spells) {
+      if (spells.size === 0) return;
+
+      const actions = await Promise.all([...spells.values()].map(async spell => {
+        const action = await this.#getAction(spell, "spell");
+        const slotFree = this.#getSlotFreeUsableActivities(spell);
+        if (slotFree.length === 1) action.system.activityId = slotFree[0].id;
+        // Unique id so this entry doesn't collide with the leveled-group action for the same spell
+        // in core's `availableActions` map (first-write-wins; would otherwise drop our activityId).
+        action.id = `${spell.id}_limited`;
+        return action;
+      }));
+
+      this.addActions(actions, groupData);
     }
 
     /* -------------------------------------------- */
@@ -939,7 +973,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @returns {boolean}   Whether the item is usable
      */
     #isUsableItem(item) {
-      return this.showUnchargedItems || !!item.system.uses?.value || !item.system.uses?.max;
+      if (this.showUnchargedItems) return true;
+      if (item.system.uses?.value || !item.system.uses?.max) return true;
+      if (item.type === "spell") {
+        const activities = item.system?.activities?.contents ?? [];
+        return activities.some(a => a.consumption?.spellSlot === true
+          && !a.consumption?.targets?.some(t => t.type === "itemUses"));
+      }
+      return false;
     }
 
     /* -------------------------------------------- */
@@ -957,6 +998,60 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       // Return true if the spell has a spellcasting method other than 'spell' (which maps to 'prepared') or is prepared
       return (spell.system.method !== "spell")
         || spell.system.prepared || spell.system.linkedActivity?.displayInSpellbook;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Slot-free, currently-usable activities on a spell.
+     * @private
+     * @param {object} spell
+     * @returns {Array} List of activities
+     */
+    #getSlotFreeUsableActivities(spell) {
+      const activities = spell.system?.activities?.contents ?? [];
+      return activities.filter(activity => {
+        const slotFree = activity.type === "forward" || activity.consumption?.spellSlot === false;
+        return slotFree && this.#isActivityUsable(activity, spell);
+      });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Whether the spell has at least one slot-free, currently-usable activity.
+     * @private
+     * @param {object} spell
+     * @returns {boolean}
+     */
+    #hasLimitedCasting(spell) {
+      return this.#getSlotFreeUsableActivities(spell).length > 0;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Whether a non-slot activity is currently usable based on its own resources.
+     * @private
+     * @param {object} activity
+     * @param {object} spell
+     * @returns {boolean}
+     */
+    #isActivityUsable(activity, spell) {
+      if (this.showUnchargedItems) return true;
+
+      // Activity-level limited uses
+      const activityUses = activity.uses;
+      if (activityUses?.max > 0) return (activityUses.value ?? 0) > 0;
+
+      // Activity consumes the parent spell's own limited uses
+      const consumesItemUses = activity.consumption?.targets?.some(t => t.type === "itemUses");
+      if (consumesItemUses) {
+        const spellUses = spell.system.uses;
+        if (spellUses?.max > 0) return (spellUses.value ?? 0) > 0;
+      }
+
+      return true;
     }
 
     /* -------------------------------------------- */
@@ -1189,7 +1284,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const icon = prepared ? PREPARED_ICON : `${PREPARED_ICON} tah-icon-disabled`;
       const title = prepared === CONFIG.DND5E.spellPreparationStates.always.value ? game.i18n.localize("DND5E.SpellPrepAlways") : prepared ? game.i18n.localize("DND5E.SpellPrepared") : game.i18n.localize("DND5E.SpellUnprepared");
 
-      // Return icon if the spellcasting method is 'spell' (prepared) or prepared is always and the spell is not a cantrip
+      // Return icon when method is 'spell' or always-prepared, and not a cantrip
       return ((preparationMode === "spell" || prepared === CONFIG.DND5E.spellPreparationStates.always.value) && level !== 0) ? `<i class="${icon}" title="${title}"></i>` : null;
     }
 

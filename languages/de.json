@@ -41,6 +41,7 @@
       "lairActions": "Hortaktionen",
       "legendary": "Legendär",
       "legendaryActions": "Legendäre Aktionen",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Manöver",
       "metamagicOptions": "Metamagie Optionen",
       "monsterFeatures": "Monsterfähigkeiten",
@@ -55,11 +56,6 @@
       "rests": "Rasten",
       "rollInitiative": "Initiativewurf",
       "runes": "Runen",
-      "skill": "Skill",
-      "skills": "Skills",
-      "superiorHuntersDefense": "Außerordentliche Verteidigung des Jägers",
-      "uncommon": "Ungewöhnlich",
-      "veryRare": "Sehr selten",
       "settings": {
         "abbreviateSkills": {
           "hint": "Anzeige von Fertigkeits- und Fähigkeitsnamen als dreistellige Abkürzungen",
@@ -93,7 +89,12 @@
           "hint": "Zeige unvorbereitete Zauber",
           "name": "Zeige unvorbereitete Zauber"
         }
-      }
+      },
+      "skill": "Skill",
+      "skills": "Skills",
+      "superiorHuntersDefense": "Außerordentliche Verteidigung des Jägers",
+      "uncommon": "Ungewöhnlich",
+      "veryRare": "Sehr selten"
     }
   }
 }

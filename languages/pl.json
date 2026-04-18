@@ -41,6 +41,7 @@
       "lairActions": "Matecznik akcje",
       "legendary": "Legendarny",
       "legendaryActions": "Legendarny akcje",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Maneuvers",
       "metamagicOptions": "Metamagic Options",
       "monsterFeatures": "Monster Features",
@@ -55,11 +56,6 @@
       "rests": "Odpoczynki",
       "rollInitiative": "Rzut na Inicjatywę",
       "runes": "Runes",
-      "skill": "Skill",
-      "skills": "Umiejętności",
-      "superiorHuntersDefense": "Superior Hunter's Defense",
-      "uncommon": "Uncommon",
-      "veryRare": "Very Rare",
       "settings": {
         "abbreviateSkills": {
           "hint": "Display skill and ability names as a three-character abbreviation",
@@ -93,7 +89,12 @@
           "hint": "Show unprepared spells",
           "name": "Show Unprepared Spells"
         }
-      }
+      },
+      "skill": "Skill",
+      "skills": "Umiejętności",
+      "superiorHuntersDefense": "Superior Hunter's Defense",
+      "uncommon": "Uncommon",
+      "veryRare": "Very Rare"
     }
   }
 }

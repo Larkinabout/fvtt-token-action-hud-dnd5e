@@ -41,6 +41,7 @@
       "lairActions": "Acciones de guarida",
       "legendary": "Legendario",
       "legendaryActions": "Acciones legendarias",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Maneuvers",
       "metamagicOptions": "Metamagic Options",
       "monsterFeatures": "Monster Features",
@@ -55,11 +56,6 @@
       "rests": "Descansos",
       "rollInitiative": "Tirar iniciativa",
       "runes": "Runes",
-      "skill": "Skill",
-      "skills": "Habilidades",
-      "superiorHuntersDefense": "Superior Hunter's Defense",
-      "uncommon": "Uncommon",
-      "veryRare": "Very Rare",
       "settings": {
         "abbreviateSkills": {
           "hint": "Display skill and ability names as a three-character abbreviation",
@@ -93,7 +89,12 @@
           "hint": "Show unprepared spells",
           "name": "Show Unprepared Spells"
         }
-      }
+      },
+      "skill": "Skill",
+      "skills": "Habilidades",
+      "superiorHuntersDefense": "Superior Hunter's Defense",
+      "uncommon": "Uncommon",
+      "veryRare": "Very Rare"
     }
   }
 }

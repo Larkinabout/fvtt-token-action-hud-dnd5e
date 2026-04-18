@@ -252,9 +252,17 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       if (this.#needsRecharge(item)) {
         item.rollRecharge();
-      } else {
-        item.use({ event, legacy: false });
+        return;
       }
+
+      const activityId = this.action?.system?.activityId;
+      const activity = activityId ? item?.system?.activities?.get(activityId) : null;
+      if (activity) {
+        activity.use({ event });
+        return;
+      }
+
+      item.use({ event, legacy: false });
     }
 
     /* -------------------------------------------- */

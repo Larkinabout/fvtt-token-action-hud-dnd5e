@@ -41,6 +41,7 @@
       "lairActions": "巢穴行動",
       "legendary": "传奇",
       "legendaryActions": "傳奇動作",
+      "limitedSpells": "Limited Spells",
       "maneuvers": "Maneuvers",
       "metamagicOptions": "Metamagic Options",
       "monsterFeatures": "Monster Features",
@@ -55,11 +56,6 @@
       "rests": "休息",
       "rollInitiative": "先攻掷骰",
       "runes": "Runes",
-      "skill": "Skill",
-      "skills": "技能",
-      "superiorHuntersDefense": "Superior Hunter's Defense",
-      "uncommon": "Uncommon",
-      "veryRare": "Very Rare",
       "settings": {
         "abbreviateSkills": {
           "hint": "Display skill and ability names as a three-character abbreviation",
@@ -93,7 +89,12 @@
           "hint": "Show unprepared spells",
           "name": "Show Unprepared Spells"
         }
-      }
+      },
+      "skill": "Skill",
+      "skills": "技能",
+      "superiorHuntersDefense": "Superior Hunter's Defense",
+      "uncommon": "Uncommon",
+      "veryRare": "Very Rare"
     }
   }
 }
