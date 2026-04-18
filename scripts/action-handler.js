@@ -8,6 +8,25 @@ import { Utils } from "./utils.js";
 export let ActionHandler = null;
 
 Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
+  const characterPlan = {
+    inventoryGroups: ["equipped", "consumables", "containers", "equipment", "loot", "tools", "weapons", "unequipped"],
+    parallel: ["conditions", "effects", "features", "inventory", "spells"],
+    sequential: ["abilities", "checks", "saves", "combat", "counters", "exhaustion", "rests", "skills", "utility"]
+  };
+  const BUILD_PLANS = {
+    character: characterPlan,
+    npc: characterPlan,
+    vehicle: {
+      inventoryGroups: ["consumables", "equipment", "tools", "weapons"],
+      parallel: ["conditions", "effects", "features", "inventory"],
+      sequential: ["abilities", "checks", "saves", "combat", "utility"]
+    },
+    multi: {
+      parallel: ["conditions"],
+      sequential: ["abilities", "checks", "saves", "combat", "rests", "skills", "utility"]
+    }
+  };
+
   ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
     // Initialize action variables
     featureActions = null;
@@ -25,9 +44,22 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @returns {object}
      */
     async buildSystemActions(groupIds) {
+      const mode = !this.actor ? "multi" : this.actor.type;
+      const plan = BUILD_PLANS[mode];
+      if (!plan) return;
+
       // Set actor and token variables
-      this.actors = (!this.actor) ? this.#getValidActors() : [this.actor];
-      this.tokens = (!this.token) ? this.#getValidTokens() : [this.token];
+      if (this.actor) {
+        this.actors = [this.actor];
+        this.tokens = [this.token];
+      } else {
+        const allowedTypes = new Set(["character", "npc"]);
+        const allValid = this.actors.every(actor => allowedTypes.has(actor.type));
+        if (!allValid) {
+          this.actors = [];
+          this.tokens = [];
+        }
+      }
 
       // Set items variable
       if (this.actor) {
@@ -45,106 +77,29 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
       this.showUnpreparedSpells = Utils.getSetting("showUnpreparedSpells");
 
-      this.activationgroupIds = [
-        "actions",
-        "bonus-actions",
-        "crew-actions",
-        "lair-actions",
-        "legendary-actions",
-        "reactions",
-        "other-actions"
-      ];
+      if (plan.inventoryGroups) this.inventorygroupIds = plan.inventoryGroups;
 
-      if (this.actor?.type === "character" || this.actor?.type === "npc") {
-        this.inventorygroupIds = [
-          "equipped",
-          "consumables",
-          "containers",
-          "equipment",
-          "loot",
-          "tools",
-          "weapons",
-          "unequipped"
-        ];
+      const builders = {
+        abilities: () => this.#buildAbilities("ability", "abilities"),
+        checks: () => this.#buildAbilities("check", "checks"),
+        saves: () => this.#buildAbilities("save", "saves"),
+        combat: () => this.#buildCombat(),
+        conditions: () => this.#buildConditions(),
+        counters: () => this.#buildCounters(),
+        effects: () => this.#buildEffects(),
+        exhaustion: () => this.#buildExhaustion(),
+        features: () => this.#buildFeatures(),
+        inventory: () => this.#buildInventory(),
+        rests: () => this.#buildRests(),
+        skills: () => this.#buildSkills(),
+        spells: () => this.#buildSpells(),
+        utility: () => this.#buildUtility()
+      };
 
-        await this.#buildCharacterActions();
-      } else if (this.actor?.type === "vehicle") {
-        this.inventorygroupIds = [
-          "consumables",
-          "equipment",
-          "tools",
-          "weapons"
-        ];
-
-        await this.#buildVehicleActions();
-      } else if (!this.actor) {
-        await this.#buildMultipleTokenActions();
+      if (plan.parallel.length) {
+        await Promise.all(plan.parallel.map(key => builders[key]()));
       }
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Build character actions
-     * @private
-     * @returns {object}
-     */
-    async #buildCharacterActions() {
-      await Promise.all([
-        this.#buildConditions(),
-        this.#buildEffects(),
-        this.#buildFeatures(),
-        this.#buildInventory(),
-        this.#buildSpells()
-      ]);
-      this.#buildAbilities("ability", "abilities");
-      this.#buildAbilities("check", "checks");
-      this.#buildAbilities("save", "saves");
-      this.#buildCombat();
-      this.#buildCounters();
-      this.#buildExhaustion();
-      this.#buildRests();
-      this.#buildSkills();
-      this.#buildUtility();
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Build vehicle actions
-     * @private
-     * @returns {object}
-     */
-    async #buildVehicleActions() {
-      await Promise.all([
-        this.#buildConditions(),
-        this.#buildEffects(),
-        this.#buildFeatures(),
-        this.#buildInventory()
-      ]);
-      this.#buildAbilities("ability", "abilities");
-      this.#buildAbilities("check", "checks");
-      this.#buildAbilities("save", "saves");
-      this.#buildCombat();
-      this.#buildUtility();
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Build multiple token actions
-     * @private
-     * @returns {object}
-     */
-    async #buildMultipleTokenActions() {
-      this.#buildAbilities("ability", "abilities");
-      this.#buildAbilities("check", "checks");
-      this.#buildAbilities("save", "saves");
-      this.#buildCombat();
-      await this.#buildConditions();
-      this.#buildRests();
-      this.#buildSkills();
-      this.#buildUtility();
+      for (const key of plan.sequential) builders[key]();
     }
 
     /* -------------------------------------------- */
@@ -1070,30 +1025,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /* -------------------------------------------- */
 
     /**
-     * Get valid actors
-     * @private
-     * @returns {object}
-     */
-    #getValidActors() {
-      const allowedTypes = ["character", "npc"];
-      return this.actors.every(actor => allowedTypes.includes(actor.type)) ? this.actors : [];
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Get valid tokens
-     * @private
-     * @returns {object}
-     */
-    #getValidTokens() {
-      const allowedTypes = ["character", "npc"];
-      return this.actors.every(actor => allowedTypes.includes(actor.type)) ? this.tokens : [];
-    }
-
-    /* -------------------------------------------- */
-
-    /**
      * Get quantity
      * @private
      * @param {object} item
@@ -1195,7 +1126,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Filter out slow items and return the result
       return new Map([...items.entries()].filter(([_, item]) => {
-        const activationType = item.system?.activation?.type;
+        const activationType = item.system?.activities?.contents[0]?.activation?.type;
         return !slowActivationTypes.has(activationType);
       }));
     }
