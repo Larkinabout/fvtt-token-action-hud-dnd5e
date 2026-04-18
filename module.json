@@ -18,8 +18,8 @@
   "flags": {},
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": "12.331",
-    "verified": "13.348"
+    "minimum": "13.351",
+    "verified": "14.360"
   },
   "esmodules": [
     "./scripts/token-action-hud-dnd5e.min.js"
@@ -88,8 +88,8 @@
         "id": "dnd5e",
         "compatibility": {
           "minimum": "5.1.0",
-          "maximum": "5.99",
-          "verified": "5.1.4"
+          "verified": "5.3.0",
+          "maximum": "5.99"
         }
       }
     ],
@@ -99,8 +99,8 @@
         "type": "module",
         "compatibility": {
           "minimum": "2.0.11",
-          "maximum": "2.0.99",
-          "verified": "2.0.16"
+          "maximum": "2.1.99",
+          "verified": "2.1.0"
         }
       }    ],
     "optional": [],

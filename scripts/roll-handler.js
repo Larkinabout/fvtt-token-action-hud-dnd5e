@@ -57,8 +57,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           if (this.isRenderItem()) this.renderItem(actor, actionId);
           else this.useItem(event, actor, actionId);
           break;
-        case "magicItem":
-          await this.rollMagicItem(actor, actionId); break;
         case "skill":
           this.rollSkill(event, actor, actionId); break;
         case "utility":
@@ -214,7 +212,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
     }
 
-    /* -------------------------------------------- */Russe
+    /* -------------------------------------------- */
 
     /**
      * Roll Death Save
@@ -224,24 +222,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      */
     rollDeathSave(event, actor) {
       actor.rollDeathSave({ event });
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Roll Magic Item
-     * @private
-     * @param {object} actor    The actor
-     */
-    async rollMagicItem(actor) {
-      const { itemId, effectId } = this.action.system;
-
-      const magicItemActor = await MagicItems.actor(actor.id);
-      if (!magicItemActor) return;
-
-      // Magicitems module 3.0.0 does not support Item5e#use
-      magicItemActor.roll(itemId, effectId);
-      Hooks.callAll("forceUpdateTokenActionHud");
     }
 
     /* -------------------------------------------- */
@@ -418,7 +398,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {object} event The event
      */
     async handleActionHover(event) {
-      const types = ["feature", "item", "spell", "weapon", "magicItem"];
+      const types = ["feature", "item", "spell", "weapon"];
 
       if (!this.actor || !this.action?.system?.actionId) return;
 
