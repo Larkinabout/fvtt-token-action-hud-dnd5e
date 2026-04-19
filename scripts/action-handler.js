@@ -68,6 +68,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Set settings variables
       this.abbreviateSkills = Utils.getSetting("abbreviateSkills");
+      this.showSpellsAcrossGroups = Utils.getSetting("showSpellsAcrossGroups");
       this.displaySpellInfo = Utils.getSetting("displaySpellInfo");
       this.showItemsWithoutActivationCosts = Utils.getSetting("showItemsWithoutActivationCosts");
       this.showUnchargedItems = Utils.getSetting("showUnchargedItems");
@@ -154,7 +155,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @param {object} data  groupData, actionData, actionType
      */
     async buildActivations(data) {
-      const { groupData, actionData, actionType = "item" } = data;
+      const { groupData, actionData, actionType = "item", spellSlot } = data;
 
       // Create map of items according to activation type
       const activationItems = new Map();
@@ -193,7 +194,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         await this.buildActions({
           groupData: groupDataClone,
           actionData: activationItems.get(group),
-          actionType
+          actionType,
+          spellSlot
         });
       }
     }
@@ -778,32 +780,49 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (spells.size === 0) return;
 
       // Initialize spells map categories
+      const LEVEL_GROUP = {
+        1: "_1stLevelSpells", 2: "_2ndLevelSpells", 3: "_3rdLevelSpells",
+        4: "_4thLevelSpells", 5: "_5thLevelSpells", 6: "_6thLevelSpells",
+        7: "_7thLevelSpells", 8: "_8thLevelSpells", 9: "_9thLevelSpells"
+      };
       const spellsMap = new Map([
         ["atWillSpells", new Map()],
         ["innateSpells", new Map()],
         ["pactSpells", new Map()],
         ["cantrips", new Map()],
-        ["_1stLevelSpells", new Map()],
-        ["_2ndLevelSpells", new Map()],
-        ["_3rdLevelSpells", new Map()],
-        ["_4thLevelSpells", new Map()],
-        ["_5thLevelSpells", new Map()],
-        ["_6thLevelSpells", new Map()],
-        ["_7thLevelSpells", new Map()],
-        ["_8thLevelSpells", new Map()],
-        ["_9thLevelSpells", new Map()],
+        ...Object.values(LEVEL_GROUP).map(k => [k, new Map()]),
         ["additionalSpells", new Map()],
         ["limitedSpells", new Map()]
       ]);
+
+      const actorSpells = this.actor.system.spells ?? {};
+      const hasRegularSlots = Object.entries(actorSpells).some(([k, v]) =>
+        k.startsWith("spell") && k !== "spell0" && v?.max > 0);
+      const hasPactSlots = actorSpells.pact?.max > 0;
+      const pactLevel = actorSpells.pact?.level ?? 0;
+      const clone = this.showSpellsAcrossGroups;
+      const maxSlotLevel = Object.entries(actorSpells)
+        .filter(([k, v]) => k.startsWith("spell") && k !== "spell0" && v?.max > 0)
+        .reduce((max, [, v]) => Math.max(max, v.level ?? 0), 0);
+
+      const addToLeveledAtAndAbove = (key, value, fromLevel) => {
+        const upTo = Math.max(fromLevel, maxSlotLevel);
+        for (let lvl = fromLevel; lvl <= upTo; lvl++) {
+          if (LEVEL_GROUP[lvl]) spellsMap.get(LEVEL_GROUP[lvl]).set(key, value);
+        }
+      };
 
       // Loop through items
       for (const [key, value] of spells) {
         if (!this.#isUsableItem(value) || !this.#isUsableSpell(value)) continue;
 
+        const level = value.system.level;
         if (value.system.linkedActivity) {
           if (value.system.linkedActivity.displayInSpellbook) {
             spellsMap.get("additionalSpells").set(key, value);
           }
+        } else if (level === 0) {
+          spellsMap.get("cantrips").set(key, value);
         } else {
           switch (value.system.method) {
             case "atwill":
@@ -811,31 +830,19 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             case "innate":
               spellsMap.get("innateSpells").set(key, value); break;
             case "pact":
-              spellsMap.get("pactSpells").set(key, value); break;
-            default: {
-              switch (value.system.level) {
-                case 0:
-                  spellsMap.get("cantrips").set(key, value); break;
-                case 1:
-                  spellsMap.get("_1stLevelSpells").set(key, value); break;
-                case 2:
-                  spellsMap.get("_2ndLevelSpells").set(key, value); break;
-                case 3:
-                  spellsMap.get("_3rdLevelSpells").set(key, value); break;
-                case 4:
-                  spellsMap.get("_4thLevelSpells").set(key, value); break;
-                case 5:
-                  spellsMap.get("_5thLevelSpells").set(key, value); break;
-                case 6:
-                  spellsMap.get("_6thLevelSpells").set(key, value); break;
-                case 7:
-                  spellsMap.get("_7thLevelSpells").set(key, value); break;
-                case 8:
-                  spellsMap.get("_8thLevelSpells").set(key, value); break;
-                case 9:
-                  spellsMap.get("_9thLevelSpells").set(key, value); break;
+              spellsMap.get("pactSpells").set(key, value);
+              if (clone && hasRegularSlots) addToLeveledAtAndAbove(key, value, level);
+              break;
+            default:
+              if (clone) {
+                addToLeveledAtAndAbove(key, value, level);
+                if (hasPactSlots && level <= pactLevel) {
+                  spellsMap.get("pactSpells").set(key, value);
+                }
+              } else if (LEVEL_GROUP[level]) {
+                spellsMap.get(LEVEL_GROUP[level]).set(key, value);
               }
-            }
+              break;
           }
         }
 
@@ -871,20 +878,20 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         }
       }
 
-      // Set equivalent spell slot where pact slot is available
-      if (pactSlot[1].slotAvailable) {
-        const spellSlot = spellSlotsMap.get(`spell${pactSlot[1].level}`);
-        spellSlot.slotsAvailable = true;
+      if (!clone && pactSlot) {
+        const spellSlotEquivalent = spellSlotsMap.get(`spell${pactSlot[1].level}`);
+        if (pactSlot[1].slotAvailable && spellSlotEquivalent) spellSlotEquivalent.slotAvailable = true;
+        if (spellSlotEquivalent?.slotAvailable) pactSlot[1].slotAvailable = true;
       }
 
       const spellSlotModes = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, "pact"]);
 
       for (const id of SPELL_GROUP_IDS) {
-        // Skip if no spells exist
-        if (!spellsMap.has(id)) continue;
+        // Skip if empty
+        if (!spellsMap.get(id)?.size) continue;
 
         const spellMode = GROUP[id].spellMode;
-        const levelInfo = (spellMode === "pact") ? pactSlot[1] : spellSlotsMap.get(`spell${spellMode}`);
+        const levelInfo = (spellMode === "pact") ? pactSlot?.[1] : spellSlotsMap.get(`spell${spellMode}`);
         const { value: slots = 0, max = 0, slotAvailable = false } = levelInfo || {};
 
         // Skip if spells require spell slots and none are available
@@ -900,7 +907,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         // Add spell slot info to group
         this.addGroupInfo(groupData);
 
-        const data = { groupData, actionData: spellsMap.get(id), actionType: "spell" };
+        // Select slot
+        let spellSlot = null;
+        if (clone) {
+          if (spellMode === "pact") spellSlot = "pact";
+          else if (typeof spellMode === "number" && spellMode > 0) spellSlot = `spell${spellMode}`;
+        }
+
+        const data = { groupData, actionData: spellsMap.get(id), actionType: "spell", spellSlot };
 
         // Limited Spells
         if (id === "limitedSpells") {
@@ -929,8 +943,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         const action = await this.#getAction(spell, "spell");
         const slotFree = this.#getSlotFreeUsableActivities(spell);
         if (slotFree.length === 1) action.system.activityId = slotFree[0].id;
-        // Unique id so this entry doesn't collide with the leveled-group action for the same spell
-        // in core's `availableActions` map (first-write-wins; would otherwise drop our activityId).
         action.id = `${spell.id}_limited`;
         return action;
       }));
@@ -981,7 +993,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           };
         });
 
-      // Crreate group data
+      // Create group data
       const groupData = { id: "utility" };
 
       // Add actions to HUD
@@ -993,11 +1005,11 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /**
      * Build actions
      * @public
-     * @param {object} data actionData, groupData, actionType
+     * @param {object} data actionData, groupData, actionType, spellSlot
      * @param {object} options
      */
     async buildActions(data, options) {
-      const { actionData, groupData, actionType } = data;
+      const { actionData, groupData, actionType, spellSlot } = data;
 
       // Exit if there is no action data
       if (actionData.size === 0) return;
@@ -1007,7 +1019,14 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (!groupId) return;
 
       // Get actions
-      const actions = await Promise.all([...actionData].map(async item => await this.#getAction(item[1], actionType)));
+      const actions = await Promise.all([...actionData].map(async item => {
+        const action = await this.#getAction(item[1], actionType);
+        if (spellSlot) {
+          action.system.spellSlot = spellSlot;
+          action.id = `${action.id}_${spellSlot}`;
+        }
+        return action;
+      }));
 
       // Add actions to action list
       this.addActions(actions, groupData);
@@ -1126,8 +1145,24 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const activities = spell.system?.activities?.contents ?? [];
       return activities.filter(activity => {
         const slotFree = activity.type === "forward" || activity.consumption?.spellSlot === false;
-        return slotFree && this.#isActivityUsable(activity, spell);
+        if (!slotFree) return false;
+        if (!this.#requiresUses(activity)) return false;
+        return this.#isActivityUsable(activity, spell);
       });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Whether an activity requires uses.
+     * @private
+     * @param {object} activity
+     * @returns {boolean}
+     */
+    #requiresUses(activity) {
+      if (activity.uses?.max > 0) return true;
+      return !!activity.consumption?.targets?.some(t =>
+        t.type === "itemUses" || t.type === "activityUses");
     }
 
     /* -------------------------------------------- */

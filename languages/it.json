@@ -62,6 +62,10 @@
           "hint": "Mostra nomi di Abilità e Caratteristiche in 3 Caratteri",
           "name": "Abbrevia nomi di Abilità e Caratteristiche"
         },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
+        },
         "displaySpellInfo": {
           "hint": "Mostra informazioni componenti incantesimo, concentrazione e stato del rituale vicino al nome incantesimo",
           "name": "Mostra Informazioni Incantesimo"

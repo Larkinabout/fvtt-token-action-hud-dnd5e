@@ -117,6 +117,22 @@ export function register(updateFunc) {
     }
   });
 
+  game.settings.register(MODULE.ID, "showSpellsAcrossGroups", {
+    name: game.i18n.localize(
+      "tokenActionHud.dnd5e.settings.showSpellsAcrossGroups.name"
+    ),
+    hint: game.i18n.localize(
+      "tokenActionHud.dnd5e.settings.showSpellsAcrossGroups.hint"
+    ),
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: value => {
+      updateFunc(value);
+    }
+  });
+
   game.settings.register(MODULE.ID, "showItemsWithoutActivationCosts", {
     name: game.i18n.localize(
       "tokenActionHud.dnd5e.settings.showItemsWithoutActivationCosts.name"

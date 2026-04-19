@@ -271,14 +271,16 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return;
       }
 
-      const activityId = this.action?.system?.activityId;
+      const { activityId, spellSlot } = this.action?.system ?? {};
       const activity = activityId ? item?.system?.activities?.get(activityId) : null;
       if (activity) {
         activity.use({ event });
         return;
       }
 
-      item.use({ event, legacy: false });
+      const usage = { event, legacy: false };
+      if (spellSlot) usage.spell = { slot: spellSlot };
+      item.use(usage);
     }
 
     /* -------------------------------------------- */

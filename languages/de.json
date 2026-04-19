@@ -62,6 +62,10 @@
           "hint": "Anzeige von Fertigkeits- und Fähigkeitsnamen als dreistellige Abkürzungen",
           "name": "Namen von Fertigkeiten und Fähigkeiten abkürzen"
         },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
+        },
         "displaySpellInfo": {
           "hint": "Anzeige von Informationen zu den Zauberkomponenten, der Konzentration und dem Ritualstatus neben dem Namen des Zaubers",
           "name": "Informationen zum Zauberspruch anzeigen"
