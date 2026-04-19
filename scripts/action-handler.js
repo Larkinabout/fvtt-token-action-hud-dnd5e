@@ -1082,6 +1082,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       }
       const info = this.#getItemInfo(entity);
       const tooltip = this.#getTooltipData(entity);
+      const equipped = entity.system?.equipped;
+      const hasContextMenu = equipped !== undefined;
+      const system = { actionType, actionId: id };
+      if (hasContextMenu) {
+        system.item = true;
+        system.equipped = equipped;
+      }
       return {
         id,
         name,
@@ -1095,7 +1102,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         info3: info?.info3,
         listName: this.#getListName(actionType, name),
         tooltip,
-        system: { actionType, actionId: id }
+        ...(hasContextMenu && { hasContextMenu: true }),
+        system
       };
     }
 
@@ -1130,6 +1138,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const icon1 = activityImg
         ? `<img class="tah-activity-icon" src="${activityImg}" title="${activityName}">`
         : this.#getActivationTypeIcon(activity.activation?.type);
+      const equipped = item.system?.equipped;
+      const hasContextMenu = equipped !== undefined;
+      const system = { actionType, actionId: itemId, activityId: activity.id };
+      if (hasContextMenu) {
+        system.item = true;
+        system.equipped = equipped;
+      }
       return {
         id: `${itemId}_${activity.id}`,
         name,
@@ -1143,7 +1158,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         info3: info?.info3,
         listName: this.#getListName(actionType, name),
         tooltip,
-        system: { actionType, actionId: itemId, activityId: activity.id }
+        ...(hasContextMenu && { hasContextMenu: true }),
+        system
       };
     }
 

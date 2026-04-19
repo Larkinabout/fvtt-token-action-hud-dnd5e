@@ -31,6 +31,7 @@
       "defensiveTactics": "Táticas Defensivas",
       "eldritchInvocations": "Invocações Místicas",
       "elementalDisciplines": "Disciplinas Elementais",
+      "equip": "Equip",
       "favorites": "Favorites",
       "feats": "Talentos",
       "fightingStyles": "Estilos de Luta",
@@ -104,7 +105,9 @@
       "skills": "Perícias",
       "superiorHuntersDefense": "Defesa de Caçador Superior",
       "uncommon": "Incomum",
-      "veryRare": "Raríssimo"
+      "unequip": "Unequip",
+      "veryRare": "Raríssimo",
+      "viewItem": "View Item"
     }
   }
 }

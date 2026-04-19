@@ -31,6 +31,7 @@
       "defensiveTactics": "Tattiche Difensive",
       "eldritchInvocations": "Suppliche Occulte",
       "elementalDisciplines": "Discipline elementali",
+      "equip": "Equip",
       "favorites": "Favorites",
       "feats": "Talenti",
       "fightingStyles": "Stili di Combattimento",
@@ -104,7 +105,9 @@
       "skills": "Abilità",
       "superiorHuntersDefense": "Difesa Superiore del Cacciatore",
       "uncommon": "Non Comune",
-      "veryRare": "Molto Raro"
+      "unequip": "Unequip",
+      "veryRare": "Molto Raro",
+      "viewItem": "View Item"
     }
   }
 }

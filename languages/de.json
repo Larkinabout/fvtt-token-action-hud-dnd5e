@@ -31,6 +31,7 @@
       "defensiveTactics": "Defensive Taktiken",
       "eldritchInvocations": "Schauerliche Anrufungen",
       "elementalDisciplines": "Elementare Disziplinen",
+      "equip": "Equip",
       "favorites": "Favorites",
       "feats": "Talente",
       "fightingStyles": "Kampfstile",
@@ -104,7 +105,9 @@
       "skills": "Skills",
       "superiorHuntersDefense": "Außerordentliche Verteidigung des Jägers",
       "uncommon": "Ungewöhnlich",
-      "veryRare": "Sehr selten"
+      "unequip": "Unequip",
+      "veryRare": "Sehr selten",
+      "viewItem": "View Item"
     }
   }
 }

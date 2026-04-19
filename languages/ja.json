@@ -31,6 +31,7 @@
       "defensiveTactics": "守りの技",
       "eldritchInvocations": "妖術",
       "elementalDisciplines": "元素の技法",
+      "equip": "Equip",
       "favorites": "Favorites",
       "feats": "特技",
       "fightingStyles": "戦闘スタイル",
@@ -104,7 +105,9 @@
       "skills": "技能",
       "superiorHuntersDefense": "上級の守りの技",
       "uncommon": "アンコモン",
-      "veryRare": "ヴェリーレア"
+      "unequip": "Unequip",
+      "veryRare": "ヴェリーレア",
+      "viewItem": "View Item"
     }
   }
 }
