@@ -47,6 +47,7 @@
       "metamagicOptions": "呪文修正",
       "monsterFeatures": "モンスター特徴",
       "multiattacks": "複数回攻撃",
+      "noAction": "No Action",
       "otherActions": "その他のアクション",
       "pactBoons": "契約の恩恵",
       "pactSpells": "契約呪文",
@@ -62,13 +63,13 @@
           "hint": "技能および能力の名前を略語で表示します",
           "name": "技能と能力名の略記"
         },
-        "showSpellsAcrossGroups": {
-          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
-          "name": "Show Spells in All Castable Groups"
-        },
         "displaySpellInfo": {
           "hint": "呪文名の横に、呪文の構成要素の情報、集中、儀式のステータスを表示します",
           "name": "呪文情報を表示"
+        },
+        "showActivitiesAsActions": {
+          "hint": "Show each activity on an item as its own action. When clicking an activity action, the activity is executed directly. When disabled, each item is a single action and clicking the action will display the activity selection window (unless skipped).",
+          "name": "Show Activities as Actions"
         },
         "showItemsWithoutActivationCosts": {
           "hint": "発動コストなしのアイテムを表示します",
@@ -77,6 +78,10 @@
         "showSlowActions": {
           "hint": "1ラウンド以上かかるアクションを表示します",
           "name": "遅いアクションを表示"
+        },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
         },
         "showUnchargedItems": {
           "hint": "チャージが残っていないアイテムを表示します",

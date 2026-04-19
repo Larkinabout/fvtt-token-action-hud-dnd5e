@@ -60,6 +60,7 @@ export const ACTIVATION_TYPE = {
   reactiondamage: { group: "reactions", icon: "fas fa-bolt" },
   reactionmanual: { group: "reactions", icon: "fas fa-bolt" },
   special: { group: "special-actions", icon: "fas fa-star" },
+  none: { group: "no-action" },
   other: { group: "other-actions" }
 };
 
@@ -164,6 +165,7 @@ export const GROUP = {
   metamagicOptions: { id: "metamagic-options", name: "tokenActionHud.dnd5e.metamagicOptions", type: "system" },
   monsterFeatures: { id: "monster-features", name: "tokenActionHud.dnd5e.monsterFeatures", type: "system" },
   multiattacks: { id: "multiattacks", name: "tokenActionHud.dnd5e.multiattacks", type: "system" },
+  noAction: { id: "no-action", name: "tokenActionHud.dnd5e.noAction", type: "system" },
   otherActions: { id: "other-actions", name: "tokenActionHud.dnd5e.otherActions", type: "system" },
   pactBoons: { id: "pact-boons", name: "tokenActionHud.dnd5e.pactBoons", type: "system" },
   pactSpells: { id: "pact-spells", name: "tokenActionHud.dnd5e.pactSpells", spellMode: "pact", type: "system" },

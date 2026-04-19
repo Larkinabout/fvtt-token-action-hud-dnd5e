@@ -47,6 +47,7 @@
       "metamagicOptions": "Metamagie Optionen",
       "monsterFeatures": "Monsterfähigkeiten",
       "multiattacks": "Mehrfachangriffe",
+      "noAction": "No Action",
       "otherActions": "Andere Aktionen",
       "pactBoons": "Segen des Pakts",
       "pactSpells": "Paktzauber",
@@ -62,13 +63,13 @@
           "hint": "Anzeige von Fertigkeits- und Fähigkeitsnamen als dreistellige Abkürzungen",
           "name": "Namen von Fertigkeiten und Fähigkeiten abkürzen"
         },
-        "showSpellsAcrossGroups": {
-          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
-          "name": "Show Spells in All Castable Groups"
-        },
         "displaySpellInfo": {
           "hint": "Anzeige von Informationen zu den Zauberkomponenten, der Konzentration und dem Ritualstatus neben dem Namen des Zaubers",
           "name": "Informationen zum Zauberspruch anzeigen"
+        },
+        "showActivitiesAsActions": {
+          "hint": "Show each activity on an item as its own action. When clicking an activity action, the activity is executed directly. When disabled, each item is a single action and clicking the action will display the activity selection window (unless skipped).",
+          "name": "Show Activities as Actions"
         },
         "showItemsWithoutActivationCosts": {
           "hint": "Gegenstände ohne Aktivierungskosten anzeigen",
@@ -77,6 +78,10 @@
         "showSlowActions": {
           "hint": "Aktionen anzeigen, die länger als eine Runde dauern",
           "name": "Langsame Aktionen anzeigen"
+        },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
         },
         "showUnchargedItems": {
           "hint": "Gegenstände ohne übrige Aufladungen anzeigen",

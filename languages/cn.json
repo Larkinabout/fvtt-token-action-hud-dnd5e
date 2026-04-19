@@ -47,6 +47,7 @@
       "metamagicOptions": "Metamagic Options",
       "monsterFeatures": "Monster Features",
       "multiattacks": "Multiattacks",
+      "noAction": "No Action",
       "otherActions": "其他行為",
       "pactBoons": "Pact Boons",
       "pactSpells": "Pact Spells",
@@ -62,36 +63,40 @@
           "hint": "Display skill and ability names as a three-character abbreviation",
           "name": "Abbreviate Skill and Ability Names"
         },
-        "showSpellsAcrossGroups": {
-          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
-          "name": "Show Spells in All Castable Groups"
-        },
         "displaySpellInfo": {
           "hint": "Display spell component information, concentration, and ritual status next to the spell's name",
           "name": "Display Spell Information"
         },
+        "showActivitiesAsActions": {
+          "hint": "Show each activity on an item as its own action. When clicking an activity action, the activity is executed directly. When disabled, each item is a single action and clicking the action will display the activity selection window (unless skipped).",
+          "name": "Show Activities as Actions"
+        },
         "showItemsWithoutActivationCosts": {
-          "hint": "Show items without an activation cost",
+          "hint": "Show items with an Activation Cost of \"None\".",
           "name": "Show Items without Activation Costs"
         },
         "showSlowActions": {
-          "hint": "Show actions that take longer than one round",
+          "hint": "Show actions that take longer than one round.",
           "name": "Show Slow Actions"
         },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
+        },
         "showUnchargedItems": {
-          "hint": "Show items with no charges remaining",
+          "hint": "Show items with no charges remaining.",
           "name": "Show Uncharged Items"
         },
         "showUnequippedItems": {
-          "hint": "Show unequipped items",
-          "name": "Show Unequipped Items"
+          "hint": "For player characters, show unequipped inventory items. When disabled, only equipped inventory items are shown.",
+          "name": "Show Unequipped Items for PCs"
         },
         "showUnequippedItemsNpcs": {
-          "hint": "Show unequipped items for NPCs",
+          "hint": "For NPCs, show unequipped inventory items. When disabled, only equipped inventory items are shown.",
           "name": "Show Unequipped Items for NPCs"
         },
         "showUnpreparedSpells": {
-          "hint": "Show unprepared spells",
+          "hint": "Show unprepared spells.",
           "name": "Show Unprepared Spells"
         }
       },

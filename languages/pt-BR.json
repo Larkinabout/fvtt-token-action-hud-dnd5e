@@ -47,6 +47,7 @@
       "metamagicOptions": "Opções de Metamagia",
       "monsterFeatures": "Características de Monstros",
       "multiattacks": "Ataques Múltiplos",
+      "noAction": "No Action",
       "otherActions": "Outras Ações",
       "pactBoons": "Dádiva do Pacto",
       "pactSpells": "Magias de Pacto",
@@ -62,13 +63,13 @@
           "hint": "Exibe nomes de perícias e atributos abreviados em três caracteres.",
           "name": "Abreviar Nomes de Perícias e Atributos"
         },
-        "showSpellsAcrossGroups": {
-          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
-          "name": "Show Spells in All Castable Groups"
-        },
         "displaySpellInfo": {
           "hint": "Exibe informação de componentes de magia, concentração e ritual próximo ao nome da magia.",
           "name": "Exibir Informação de Magia"
+        },
+        "showActivitiesAsActions": {
+          "hint": "Show each activity on an item as its own action. When clicking an activity action, the activity is executed directly. When disabled, each item is a single action and clicking the action will display the activity selection window (unless skipped).",
+          "name": "Show Activities as Actions"
         },
         "showItemsWithoutActivationCosts": {
           "hint": "Mostra itens sem custo de ativação.",
@@ -77,6 +78,10 @@
         "showSlowActions": {
           "hint": "Mostra ações que levam mais do que uma rodada.",
           "name": "Mostrar Ações Lentas"
+        },
+        "showSpellsAcrossGroups": {
+          "hint": "Show each spell in every spell-slot group it can be cast from. When disabled, spells appear only in their base spell-slot group.",
+          "name": "Show Spells in All Castable Groups"
         },
         "showUnchargedItems": {
           "hint": "Mostra itens sem cargas disponíveis.",

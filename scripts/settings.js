@@ -5,12 +5,32 @@ import { MODULE } from "./constants.js";
  * @param {Function} updateFunc Callback function
  */
 export function register(updateFunc) {
+  /* -------------------------------------------- */
+  /* ACTIONS                                      */
+  /* -------------------------------------------- */
+
   game.settings.register(MODULE.ID, "abbreviateSkills", {
     name: game.i18n.localize(
       "tokenActionHud.dnd5e.settings.abbreviateSkills.name"
     ),
     hint: game.i18n.localize(
       "tokenActionHud.dnd5e.settings.abbreviateSkills.hint"
+    ),
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: value => {
+      updateFunc(value);
+    }
+  });
+
+  game.settings.register(MODULE.ID, "showActivitiesAsActions", {
+    name: game.i18n.localize(
+      "tokenActionHud.dnd5e.settings.showActivitiesAsActions.name"
+    ),
+    hint: game.i18n.localize(
+      "tokenActionHud.dnd5e.settings.showActivitiesAsActions.hint"
     ),
     scope: "client",
     config: true,
@@ -37,17 +57,21 @@ export function register(updateFunc) {
     }
   });
 
-  game.settings.register(MODULE.ID, "displaySpellInfo", {
+  /* -------------------------------------------- */
+  /* ITEMS                                        */
+  /* -------------------------------------------- */
+
+  game.settings.register(MODULE.ID, "showItemsWithoutActivationCosts", {
     name: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.displaySpellInfo.name"
+      "tokenActionHud.dnd5e.settings.showItemsWithoutActivationCosts.name"
     ),
     hint: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.displaySpellInfo.hint"
+      "tokenActionHud.dnd5e.settings.showItemsWithoutActivationCosts.hint"
     ),
     scope: "client",
     config: true,
     type: Boolean,
-    default: true,
+    default: false,
     onChange: value => {
       updateFunc(value);
     }
@@ -101,17 +125,21 @@ export function register(updateFunc) {
     }
   });
 
-  game.settings.register(MODULE.ID, "showUnpreparedSpells", {
+  /* -------------------------------------------- */
+  /* SPELLS                                       */
+  /* -------------------------------------------- */
+
+  game.settings.register(MODULE.ID, "displaySpellInfo", {
     name: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.showUnpreparedSpells.name"
+      "tokenActionHud.dnd5e.settings.displaySpellInfo.name"
     ),
     hint: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.showUnpreparedSpells.hint"
+      "tokenActionHud.dnd5e.settings.displaySpellInfo.hint"
     ),
     scope: "client",
     config: true,
     type: Boolean,
-    default: false,
+    default: true,
     onChange: value => {
       updateFunc(value);
     }
@@ -133,12 +161,12 @@ export function register(updateFunc) {
     }
   });
 
-  game.settings.register(MODULE.ID, "showItemsWithoutActivationCosts", {
+  game.settings.register(MODULE.ID, "showUnpreparedSpells", {
     name: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.showItemsWithoutActivationCosts.name"
+      "tokenActionHud.dnd5e.settings.showUnpreparedSpells.name"
     ),
     hint: game.i18n.localize(
-      "tokenActionHud.dnd5e.settings.showItemsWithoutActivationCosts.hint"
+      "tokenActionHud.dnd5e.settings.showUnpreparedSpells.hint"
     ),
     scope: "client",
     config: true,
