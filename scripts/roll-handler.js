@@ -266,11 +266,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     useItem(event, actor, actionId) {
       const item = coreModule.api.Utils.getItem(actor, actionId);
 
-      if (this.#needsRecharge(item)) {
-        item.rollRecharge();
-        return;
-      }
-
       const { activityId, spellSlot } = this.action?.system ?? {};
       const activity = activityId ? item?.system?.activities?.get(activityId) : null;
       if (activity) {
@@ -281,18 +276,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const usage = { event, legacy: false };
       if (spellSlot) usage.spell = { slot: spellSlot };
       item.use(usage);
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Needs Recharge
-     * @private
-     * @param {object} item
-     * @returns {boolean}
-     */
-    #needsRecharge(item) {
-      return (item?.system?.uses?.period === "recharge" && !(item?.system?.uses?.value > 0));
     }
 
     /* -------------------------------------------- */
