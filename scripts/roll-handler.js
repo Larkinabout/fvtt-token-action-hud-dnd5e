@@ -268,6 +268,13 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       const { activityId, spellSlot } = this.action?.system ?? {};
       const activity = activityId ? item?.system?.activities?.get(activityId) : null;
+
+      const uses = this.#getUsesToRecharge(activity) ?? this.#getUsesToRecharge(item?.system);
+      if (uses) {
+        uses.rollRecharge({ apply: true, event });
+        return;
+      }
+
       if (activity) {
         activity.use({ event });
         return;
@@ -276,6 +283,20 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const usage = { event, legacy: false };
       if (spellSlot) usage.spell = { slot: spellSlot };
       item.use(usage);
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Find uses that recharge on a die roll and have run out, so a click rolls the recharge instead of using the item.
+     * @private
+     * @param {object} data Item or activity data
+     * @returns {object|null} Uses to recharge or null if none needed
+     */
+    #getUsesToRecharge(data) {
+      const uses = data?.uses;
+      if (!uses?.recovery?.some(recovery => recovery.period === "recharge")) return null;
+      return (uses.value > 0) ? null : uses;
     }
 
     /* -------------------------------------------- */
