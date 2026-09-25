@@ -88,7 +88,7 @@
         "id": "dnd5e",
         "compatibility": {
           "minimum": "6.0.0",
-          "verified": "6.0.3",
+          "verified": "6.0.5",
           "maximum": "6.99"
         }
       }
@@ -98,8 +98,8 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "2.1.1",
-          "verified": "2.1.1",
+          "minimum": "2.1.2",
+          "verified": "2.1.2",
           "maximum": "2.1.99"
         }
       }    ],
