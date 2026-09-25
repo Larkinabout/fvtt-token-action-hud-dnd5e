@@ -82,6 +82,10 @@
     font-size: 10px;
   }
 
+  .tah-icon > dnd5e-icon {
+    --icon-fill: currentColor;
+  }
+
   .tah-icon > img.tah-activity-icon {
     width: 16px;
     height: 16px;
