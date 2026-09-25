@@ -1135,7 +1135,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         const active = (!item.disabled) ? " active" : "";
         cssClass = `toggle${active}`;
       }
-      const info = this.#getItemInfo(item);
+      const info = this.#getItemInfo(item, activity);
       const tooltip = this.#getTooltipData(item);
       const activityImg = coreModule.api.Utils.getImage(activity);
       const activityIcon = activityImg
@@ -1208,6 +1208,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      */
     #isUsableItem(item) {
       if (this.showUnchargedItems) return true;
+      const linkedUses = this.#getLinkedUses(item);
+      if (linkedUses && !(linkedUses.value > 0)) return false;
       if (item.system.uses?.value || !item.system.uses?.max) return true;
       if (item.type === "spell") {
         const activities = item.system?.activities?.contents ?? [];
@@ -1334,11 +1336,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * Get item info
      * @private
      * @param {object} item
+     * @param {object} [activity]
      * @returns {object}
      */
-    #getItemInfo(item) {
+    #getItemInfo(item, activity = null) {
       const info1 = item.type === "spell" ? this.#getSpellInfo(item) : this.#getQuantityData(item);
-      const info2 = this.#getUsesData(item);
+      const info2 = this.#getUsesData(item, activity);
       const info3 = this.#getConsumeData(item);
 
       return { info1, info2, info3 };
@@ -1396,14 +1399,50 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /* -------------------------------------------- */
 
     /**
+     * Find the uses that limit an item.
+     * @private
+     * @param {object} item
+     * @param {object} [activity]
+     * @returns {object|null} Uses or null if nothing limits it
+     */
+    #getUses(item, activity = null) {
+      const itemUses = item?.system?.uses;
+      if (itemUses?.max > 0) return itemUses;
+      if (activity?.uses?.max > 0) return activity.uses;
+      const linkedUses = this.#getLinkedUses(item);
+      if (linkedUses) return linkedUses;
+      const activitiesWithUses = (item?.system?.activities?.contents ?? []).filter(a => a.uses?.max > 0);
+      return activitiesWithUses.length === 1 ? activitiesWithUses[0].uses : null;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Find the uses behind a spell granted by another item's cast activity.
+     * @private
+     * @param {object} item
+     * @returns {object|null} Uses or null if the spell was not granted or nothing limits it
+     */
+    #getLinkedUses(item) {
+      const linkedActivity = item?.system?.linkedActivity;
+      if (!linkedActivity) return null;
+      if (linkedActivity.uses?.max > 0) return linkedActivity.uses;
+      const grantingUses = linkedActivity.item?.system?.uses;
+      return (grantingUses?.max > 0) ? grantingUses : null;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
      * Get uses
      * @private
      * @param {object} item
-     * @returns {string}
+     * @param {object} [activity]
+     * @returns {object}
      */
-    #getUsesData(item) {
-      const uses = item?.system?.uses;
-      if (!(uses?.max > 0)) return {};
+    #getUsesData(item, activity = null) {
+      const uses = this.#getUses(item, activity);
+      if (!uses) return {};
       const per = uses.recovery[0]?.period === "charges" ? "" : ` ${game.i18n.localize("DND5E.per")} `;
       const period = CONFIG.DND5E.limitedUsePeriods[uses.recovery[0]?.period]?.label ?? uses.recovery[0]?.period;
       const perPeriod = (period) ? `${per}${period}` : "";
