@@ -70,7 +70,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       {
         nestId: "effects",
         id: "effects",
-        name: coreModule.api.Utils.i18n("DND5E.Effects"),
+        name: coreModule.api.Utils.i18n("DND5E.EFFECT.Tab"),
         groups: [
           { ...groups.temporaryEffects, nestId: "effects_temporary-effects" },
           { ...groups.passiveEffects, nestId: "effects_passive-effects" },
