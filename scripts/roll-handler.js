@@ -1,4 +1,5 @@
 import { CUSTOM_DND5E } from "./constants.js";
+import { Utils } from "./utils.js";
 
 export let RollHandler = null;
 
@@ -61,6 +62,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           this.rollSkill(event, actor, actionId); break;
         case "tool":
           this.rollToolCheck(event, actor, actionId); break;
+        case "travelPace":
+          await this.setTravelPace(actor, actionId); break;
         case "utility":
           await this.performUtilityAction(event, actor, token, actionId); break;
         default:
@@ -323,9 +326,44 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           actor.longRest(); break;
         case "shortRest":
           actor.shortRest(); break;
+        case "placeMembers":
+          await actor.system.placeMembers?.(); break;
+        case "toggleMembersCombat":
+          await this.toggleMembersCombat(actor); break;
       }
 
       // Update HUD
+      Hooks.callAll("forceUpdateTokenActionHud");
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Add every member token on the scene to the combat tracker, or remove them all when they are all already in it
+     * @private
+     * @param {object} actor Group actor
+     */
+    async toggleMembersCombat(actor) {
+      const tokens = Utils.getGroupMemberTokens(actor);
+      if (!tokens.length) return;
+      if (tokens.every(token => token.inCombat)) {
+        await TokenDocument.implementation.deleteCombatants(tokens);
+      } else {
+        await TokenDocument.implementation.createCombatants(tokens.filter(token => !token.inCombat));
+      }
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Set a group's travel pace
+     * @private
+     * @param {object} actor
+     * @param {string} pace Key from CONFIG.DND5E.travelPace
+     */
+    async setTravelPace(actor, pace) {
+      if (!(pace in CONFIG.DND5E.travelPace)) return;
+      await actor.update({ "system.attributes.travel.pace": pace });
       Hooks.callAll("forceUpdateTokenActionHud");
     }
 

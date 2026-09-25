@@ -85,6 +85,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           { ...groups.combat, nestId: "utility_combat" },
           { ...groups.token, nestId: "utility_token" },
           { ...groups.rests, nestId: "utility_rests" },
+          { ...groups.travelPace, nestId: "utility_travel-pace" },
           { ...groups.utility, nestId: "utility_utility" }
         ]
       }

@@ -39,6 +39,7 @@ export const ACTION_TYPE = {
   skill: "tokenActionHud.dnd5e.skill",
   spell: "TYPES.Item.spell",
   tool: "TYPES.Item.tool",
+  travelPace: "DND5E.TRAVEL.Label",
   utility: "DND5E.ActionUtil"
 };
 
@@ -182,6 +183,7 @@ export const GROUP = {
   temporaryEffects: { id: "temporary-effects", name: "DND5E.EffectTemporary", type: "system" },
   token: { id: "token", name: "tokenActionHud.token", type: "system" },
   tools: { id: "tools", name: "TYPES.Item.toolPl", type: "system" },
+  travelPace: { id: "travel-pace", name: "DND5E.TRAVEL.Label", type: "system" },
   unequipped: { id: "unequipped", name: "DND5E.Unequipped", type: "system" },
   utility: { id: "utility", name: "tokenActionHud.utility", type: "system" },
   weapons: { id: "weapons", name: "TYPES.Item.weaponPl", type: "system" }

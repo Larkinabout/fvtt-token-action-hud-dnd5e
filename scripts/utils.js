@@ -37,6 +37,18 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     /* -------------------------------------------- */
 
     /**
+     * Tokens on the current scene for every member of a group actor
+     * @param {object} actor Group actor
+     * @returns {Array} Token documents
+     */
+    static getGroupMemberTokens(actor) {
+      const members = actor?.system?.members ?? [];
+      return members.flatMap(({ actor: member }) => member?.getActiveTokens(false, true) ?? []);
+    }
+
+    /* -------------------------------------------- */
+
+    /**
      * Set setting value
      * @param {string} key The key
      * @param {string} value The value

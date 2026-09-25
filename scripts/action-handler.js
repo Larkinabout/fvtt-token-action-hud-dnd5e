@@ -21,6 +21,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       parallel: ["conditions", "effects", "features", "inventory"],
       sequential: ["abilities", "checks", "saves", "combat", "utility"]
     },
+    group: {
+      parallel: ["effects"],
+      sequential: ["counters", "rests", "travelPace", "utility"]
+    },
     multi: {
       parallel: ["conditions"],
       sequential: ["abilities", "checks", "saves", "combat", "rests", "skills", "utility"]
@@ -34,6 +38,18 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     inventoryActions = null;
 
     spellActions = null;
+
+    /* -------------------------------------------- */
+
+    /**
+     * Exclude core's combat toggle from the group HUD.
+     * @override
+     * @param {string} actionId
+     * @returns {boolean}
+     */
+    isGenericActionExcluded(actionId) {
+      return actionId === "toggleCombat" && this.actor?.type === "group";
+    }
 
     /* -------------------------------------------- */
 
@@ -96,6 +112,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         rests: () => this.#buildRests(),
         skills: () => this.#buildSkills(),
         spells: () => this.#buildSpells(),
+        travelPace: () => this.#buildTravelPace(),
         utility: () => this.#buildUtility()
       };
 
@@ -344,6 +361,8 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
             value.key = key;
             return value;
           });
+      } else if (this.actor?.type === "group") {
+        return;
       } else {
         counters = [
           {
@@ -756,8 +775,9 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
      * @private
      */
     #buildRests() {
-      // Exit if every actor is not the character type
-      if (this.actors.length === 0 || !this.actors.every(actor => actor.type === "character")) return;
+      // Exit unless every actor is a character or a group
+      const restActorTypes = new Set(["character", "group"]);
+      if (this.actors.length === 0 || !this.actors.every(actor => restActorTypes.has(actor.type))) return;
 
       // Get actions
       const actionType = "utility";
@@ -1000,6 +1020,10 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
     #buildUtility() {
       // Exit if every actor is not the character type
       if (this.actors.length === 0) return;
+      if (this.actor?.type === "group") {
+        this.#buildGroupUtility();
+        return;
+      }
       if (!this.actors.every(actor => actor.type === "character")) return;
 
       const actionType = "utility";
@@ -1039,6 +1063,65 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Add actions to HUD
       this.addActions(actions, groupData);
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Build utility actions for a group actor.
+     * Add Members to Combat stands in for core's Add to Combat.
+     * @private
+     */
+    #buildGroupUtility() {
+      const actionType = "utility";
+
+      if (game.user.isGM) {
+        const name = game.i18n.localize("DND5E.Group.PlaceMembers");
+        this.addActions([{
+          id: "placeMembers",
+          name,
+          listName: this.#getListName(actionType, name),
+          system: { actionType, actionId: "placeMembers" }
+        }], { id: "utility" });
+      }
+
+      const memberTokens = Utils.getGroupMemberTokens(this.actor);
+      const allInCombat = memberTokens.length > 0 && memberTokens.every(token => token.inCombat);
+      const name = game.i18n.localize(allInCombat
+        ? "tokenActionHud.dnd5e.removeMembersFromCombat"
+        : "tokenActionHud.dnd5e.addMembersToCombat");
+      this.addActions([{
+        id: "toggleMembersCombat",
+        name,
+        listName: this.#getListName(actionType, name),
+        system: { actionType, actionId: "toggleMembersCombat" }
+      }], { id: "token" });
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Build one toggle per travel pace for a group, with the current pace marked active
+     * @private
+     */
+    #buildTravelPace() {
+      const pace = this.actor?.system?.getTravelPace?.()?.pace;
+      if (!pace?.available) return;
+
+      const actionType = "travelPace";
+      const actions = Object.entries(CONFIG.DND5E.travelPace).map(([id, config]) => {
+        const name = config.label;
+        const active = (id === pace.value) ? " active" : "";
+        return {
+          id: `travel-pace-${id}`,
+          name,
+          cssClass: `toggle${active}`,
+          listName: this.#getListName(actionType, name),
+          system: { actionType, actionId: id }
+        };
+      });
+
+      this.addActions(actions, { id: "travel-pace" });
     }
 
     /* -------------------------------------------- */
