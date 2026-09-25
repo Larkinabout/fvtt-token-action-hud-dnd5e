@@ -225,7 +225,7 @@ export const RARITY = {
 /**
  * Ritual icon
  */
-export const RITUAL_ICON = "fas fa-circle-r";
+export const RITUAL_ICON = "systems/dnd5e/icons/svg/items/spell.svg";
 
 /* -------------------------------------------- */
 

@@ -1,7 +1,7 @@
 // System Module Imports
 import {
   ACTIVATION_TYPE, ACTION_TYPE, CONCENTRATION_ICON, CUSTOM_DND5E, FEATURE_GROUP_IDS,
-  GROUP, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, SPELL_GROUP_IDS
+  GROUP, PREPARED_ICON, PROFICIENCY_LEVEL_ICON, RITUAL_ICON, SPELL_GROUP_IDS
 } from "./constants.js";
 import { Utils } from "./utils.js";
 
@@ -130,7 +130,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           return {
             id: `${actionType}-${abilityId}`,
             name: (this.abbreviateSkills) ? Utils.capitalize(abilityId) : name,
-            icon1: (groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : "",
+            icons: [(groupId !== "checks") ? this.#getProficiencyIcon(abilities[abilityId].proficient) : ""],
             info1: (this.actor) ? {
               text: coreModule.api.Utils.getModifier(mod),
               title: `${game.i18n.localize("DND5E.ActionAbil")}: ${coreModule.api.Utils.getModifier(mod)}`
@@ -563,7 +563,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return {
           id: `skill-${id}_favorite`,
           name: this.abbreviateSkills ? Utils.capitalize(id) : def.label,
-          icon1: this.#getProficiencyIcon(skillData?.value),
+          icons: [this.#getProficiencyIcon(skillData?.value)],
           info1: { text: coreModule.api.Utils.getModifier(skillData?.total) },
           listName: this.#getListName(actionType, def.label),
           system: { actionType, actionId: id }
@@ -580,7 +580,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         return {
           id: `tool-${id}_favorite`,
           name,
-          icon1: this.#getProficiencyIcon(toolData?.value),
+          icons: [this.#getProficiencyIcon(toolData?.value)],
           info1: { text: coreModule.api.Utils.getModifier(toolData?.total) },
           listName: this.#getListName(actionType, name),
           system: { actionType, actionId: id }
@@ -795,7 +795,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           return {
             id,
             name: this.abbreviateSkills ? Utils.capitalize(id) : name,
-            icon1: this.#getProficiencyIcon(skill.value),
+            icons: [this.#getProficiencyIcon(skill.value)],
             info1: (this.actor) ? { text: coreModule.api.Utils.getModifier(skill.total) } : "",
             listName: this.#getListName(actionType, name),
             system: { actionType, actionId: id }
@@ -1094,9 +1094,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         name,
         cssClass,
         img: coreModule.api.Utils.getImage(entity),
-        icon1: this.#getActivationTypeIcon(entity.system?.activities?.contents[0]?.activation.type),
-        icon2: this.#getPreparedIcon(entity),
-        icon3: this.#getConcentrationIcon(entity),
+        icons: [
+          this.#getActivationTypeIcon(entity.system?.activities?.contents[0]?.activation.type),
+          this.#getPreparedIcon(entity),
+          this.#getConcentrationIcon(entity),
+          this.#getRitualIcon(entity)
+        ],
         info1: info?.info1,
         info2: info?.info2,
         info3: info?.info3,
@@ -1135,7 +1138,7 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       const info = this.#getItemInfo(item);
       const tooltip = this.#getTooltipData(item);
       const activityImg = coreModule.api.Utils.getImage(activity);
-      const icon1 = activityImg
+      const activityIcon = activityImg
         ? `<img class="tah-activity-icon" src="${activityImg}" title="${activityName}">`
         : this.#getActivationTypeIcon(activity.activation?.type);
       const equipped = item.system?.equipped;
@@ -1150,9 +1153,12 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
         name,
         cssClass,
         img: coreModule.api.Utils.getImage(item),
-        icon1,
-        icon2: this.#getPreparedIcon(item),
-        icon3: this.#getConcentrationIcon(item),
+        icons: [
+          activityIcon,
+          this.#getPreparedIcon(item),
+          this.#getConcentrationIcon(item),
+          this.#getRitualIcon(item)
+        ],
         info1: info?.info1,
         info2: info?.info2,
         info3: info?.info3,
@@ -1225,7 +1231,24 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
 
       // Return true if the spell has a spellcasting method other than 'spell' (which maps to 'prepared') or is prepared
       return (spell.system.method !== "spell")
-        || spell.system.prepared || spell.system.linkedActivity?.displayInSpellbook;
+        || spell.system.prepared || spell.system.linkedActivity?.displayInSpellbook
+        || this.#isWizardRitual(spell);
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Whether the spell is an unprepared ritual a wizard can still cast from their spellbook.
+     * @private
+     * @param {object} spell
+     * @returns {boolean}
+     */
+    #isWizardRitual(spell) {
+      if (spell.system.method !== "spell" || spell.system.prepared || spell.system.level === 0) return false;
+      if (!spell.system.properties?.has("ritual")) return false;
+      if (!this.actor?.classes?.wizard) return false;
+      const classIdentifier = spell.system.classIdentifier;
+      return !classIdentifier || classIdentifier === "wizard";
     }
 
     /* -------------------------------------------- */
@@ -1348,11 +1371,6 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
           info.text += game.i18n.localize(`${label}Abbr`);
           return game.i18n.localize(label);
         });
-
-      if (properties.has("ritual")) {
-        componentsArray.push(`[${game.i18n.localize("DND5E.Ritual")}]`);
-        info.text += ` [${game.i18n.localize("DND5E.RitualAbbr")}]`;
-      }
 
       info.title = componentsArray.join(", ");
 
@@ -1507,7 +1525,22 @@ Hooks.once("tokenActionHudCoreApiReady", async coreModule => {
       if (spell?.type !== "spell" || !this.displaySpellInfo || !spell.system?.properties?.has("concentration")) return null;
       const title = game.i18n.localize("DND5E.Scroll.RequiresConcentration");
       const icon = CONCENTRATION_ICON;
-      return `<dnd5e-icon src="${icon}" title="${title}">`;
+      return `<dnd5e-icon src="${icon}" title="${title}"></dnd5e-icon>`;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Get icon for a ritual spell
+     * @private
+     * @param {object} spell The spell
+     * @returns {string}     The icon
+     */
+    #getRitualIcon(spell) {
+      if (spell?.type !== "spell" || !spell.system?.properties?.has("ritual")) return null;
+      if (!this.displaySpellInfo && !this.#isWizardRitual(spell)) return null;
+      const title = game.i18n.localize("DND5E.Ritual");
+      return `<dnd5e-icon src="${RITUAL_ICON}" title="${title}"></dnd5e-icon>`;
     }
 
     /* -------------------------------------------- */
